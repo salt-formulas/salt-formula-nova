@@ -114,11 +114,16 @@ user_nova_bash:
     - pkg: nova_compute_packages
 
 nova_compute_services:
+{%- if not grains.get('noservices', False) %}
   service.running:
   - enable: true
   - names: {{ compute.services }}
   - watch:
     - file: /etc/nova/nova.conf
+{%- else %}
+  service.disabled:
+  - names: {{ compute.services }}
+{%- endif %}
 
 {%- if compute.virtualization == 'kvm' %}
 
@@ -182,6 +187,7 @@ virsh net-undefine default:
   - onlyif: "virsh net-list | grep default"
 
 {{ compute.libvirt_service }}:
+{%- if not grains.get('noservices', False) %}
   service.running:
   - enable: true
   - require:
@@ -189,6 +195,10 @@ virsh net-undefine default:
     - cmd: virsh net-undefine default
   - watch:
     - file: /etc/libvirt/{{ compute.libvirt_config }}
+{%- else %}
+  service.disabled:
+  - enable: false
+{%- endif %}
 
 {%- if grains.get('init', None) == "upstart" %}
 # MOS9 libvirt fix for upstart
