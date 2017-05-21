@@ -127,8 +127,9 @@ nova_placement_package:
   - require:
     - file: nova_placement_service_mask
 
-/etc/apache2/sites-available/nova-placement-api.conf:
+nova_placement_apache_configs:
   file.managed:
+  - names: [/etc/apache2/sites-available/nova-placement-api.conf, /etc/apache2/sites-enabled/nova-placement-api.conf]
   - source: salt://nova/files/{{ controller.version }}/nova-placement-api.conf
   - template: jinja
   - require:
@@ -156,7 +157,7 @@ nova_apache_restart:
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
-    - file: /etc/apache2/sites-available/nova-placement-api.conf
+    - file: /etc/apache2/sites-enabled/nova-placement-api.conf
 
 {%- endif %}
 
