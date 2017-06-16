@@ -7,6 +7,7 @@ import logging
 
 # Import salt libs
 import salt.utils.openstack.nova as suon
+from salt.utils.decorators import depends
 
 # Get logging started
 log = logging.getLogger(__name__)
@@ -19,13 +20,27 @@ __func_alias__ = {
 # Define the module's virtual name
 __virtualname__ = 'novang'
 
+try:
+    import novaclient
+    HAS_NOVA = True
+except:
+    HAS_NOVA = False
+
+try:
+    import keystoneauth1
+    HAS_KEYSTONE = True
+except:
+    HAS_KEYSTONE = False
+
+HAS_SALTNOVA = suon.check_nova()
+
 
 def __virtual__():
     '''
     Only load this module if nova
     is installed on this minion.
     '''
-    if suon.check_nova():
+    if HAS_SALTNOVA or HAS_NOVA:
         return __virtualname__
     return (False, 'The nova execution module failed to load: '
             'only available if nova is installed.')
@@ -70,6 +85,28 @@ def _auth(profile=None, tenant_name=None):
     return suon.SaltNova(**kwargs)
 
 
+def _get_novaclient(profile=None, tenant_name=None):
+    if HAS_SALTNOVA:
+        conn = _auth(profile=None, tenant_name=None)
+        return conn.compute_conn
+    elif HAS_NOVA and HAS_KEYSTONE:
+        conn_args = get_connection_args()
+        auth = keystoneauth1.identity.v2.Password(auth_url=conn_args.get('auth_url', None),
+                                                  username=conn_args.get('username', None),
+                                                  password=conn_args.get('password', None),
+                                                  tenant_name=conn_args.get('tenant_name', None))
+        sess = keystoneauth1.session.Session(auth=auth)
+        nova = novaclient.client.Client("2.1", session=sess)
+        try:
+            nova.flavors.list()
+        except:
+            raise Exception('novaclient: Could not authenticate with given credentials.')
+        return nova
+    else:
+        raise Exception('novaclient: could not instantiate.')
+
+
+@depends(HAS_SALTNOVA)
 def server_list(profile=None, tenant_name=None):
     '''
     Return list of active servers
@@ -81,6 +118,7 @@ def server_list(profile=None, tenant_name=None):
     return conn.server_list()
 
 
+@depends(HAS_SALTNOVA)
 def server_get(name, tenant_name=None, profile=None):
     '''
     Return information about a server
@@ -103,6 +141,11 @@ def get_connection_args(profile=None):
         password = credentials['keystone.password']
         tenant = credentials['keystone.tenant']
         auth_url = credentials['keystone.auth_url']
+    else:
+        user = __salt__['config.option']('keystone.user')
+        password = __salt__['config.option']('keystone.password')
+        tenant = __salt__['config.option']('keystone.tenant')
+        auth_url = __salt__['config.option']('keystone.auth_url')
 
     kwargs = {
         'username': user,
@@ -120,8 +163,7 @@ def quota_list(tenant_name, profile=None):
     connection_args = get_connection_args(profile)
     tenant = __salt__['keystone.tenant_get'](name=tenant_name, profile=profile, **connection_args)
     tenant_id = tenant[tenant_name]['id']
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     item = nt_ks.quotas.get(tenant_id).__dict__
     return item
 
@@ -142,12 +184,12 @@ def quota_update(tenant_name, profile=None, **quota_argument):
     connection_args = get_connection_args(profile)
     tenant = __salt__['keystone.tenant_get'](name=tenant_name, profile=profile, **connection_args)
     tenant_id = tenant[tenant_name]['id']
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     item = nt_ks.quotas.update(tenant_id, **quota_argument)
     return item
 
 
+@depends(HAS_SALTNOVA)
 def server_list(profile=None, tenant_name=None):
     '''
     Return list of active servers
@@ -159,6 +201,7 @@ def server_list(profile=None, tenant_name=None):
     return conn.server_list()
 
 
+@depends(HAS_SALTNOVA)
 def secgroup_list(profile=None, tenant_name=None):
     '''
     Return a list of available security groups (nova items-list)
@@ -170,6 +213,7 @@ def secgroup_list(profile=None, tenant_name=None):
     return conn.secgroup_list()
 
 
+@depends(HAS_SALTNOVA)
 def boot(name, flavor_id=0, image_id=0, profile=None, tenant_name=None, timeout=300, **kwargs):
     '''
     Boot (create) a new instance
@@ -197,6 +241,7 @@ def boot(name, flavor_id=0, image_id=0, profile=None, tenant_name=None, timeout=
     return conn.boot(name, flavor_id, image_id, timeout, **kwargs)
 
 
+@depends(HAS_SALTNOVA)
 def network_show(name, profile=None):
     conn = _auth(profile)
     return conn.network_show(name)
@@ -207,8 +252,7 @@ def availability_zone_list(profile=None):
     list existing availability zones
     '''
     connection_args = get_connection_args(profile)
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     ret = nt_ks.aggregates.list()
     return ret
 
@@ -218,8 +262,7 @@ def availability_zone_get(name, profile=None):
     list existing availability zones
     '''
     connection_args = get_connection_args(profile)
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     zone_exists=False
     items = availability_zone_list(profile)
     for p in items:
@@ -234,8 +277,7 @@ def availability_zone_create(name, availability_zone, profile=None):
     create availability zone
     '''
     connection_args = get_connection_args(profile)
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     item = nt_ks.aggregates.create(name, availability_zone)
     ret = {
         'Id': item.__getattr__('id'),
@@ -249,8 +291,7 @@ def aggregate_list(profile=None):
     list existing aggregates
     '''
     connection_args = get_connection_args(profile)
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     ret = nt_ks.aggregates.list()
     return ret
 
@@ -260,8 +301,7 @@ def aggregate_get(name, profile=None):
     list existing aggregates
     '''
     connection_args = get_connection_args(profile)
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     aggregate_exists=False
     items = aggregate_list(profile)
     for p in items:
@@ -276,11 +316,63 @@ def aggregate_create(name, aggregate, profile=None):
     create aggregate
     '''
     connection_args = get_connection_args(profile)
-    conn = _auth(profile)
-    nt_ks = conn.compute_conn
+    nt_ks = _get_novaclient(profile)
     item = nt_ks.aggregates.create(name, aggregate)
     ret = {
         'Id': item.__getattr__('id'),
         'Aggregate Name': item.__getattr__('name'),
     }
     return ret
+
+def flavor_list(profile=None):
+    '''
+    Return a list of available flavors (nova flavor-list)
+    '''
+    nt_ks = _get_novaclient(profile)
+    ret = {}
+    for flavor in nt_ks.flavors.list():
+        links = {}
+        for link in flavor.links:
+            links[link['rel']] = link['href']
+        ret[flavor.name] = {
+            'disk': flavor.disk,
+            'id': flavor.id,
+            'name': flavor.name,
+            'ram': flavor.ram,
+            'swap': flavor.swap,
+            'vcpus': flavor.vcpus,
+            'links': links,
+        }
+        if hasattr(flavor, 'rxtx_factor'):
+            ret[flavor.name]['rxtx_factor'] = flavor.rxtx_factor
+    return ret
+
+
+def flavor_create(name,             # pylint: disable=C0103
+                  flavor_id=0,      # pylint: disable=C0103
+                  ram=0,
+                  disk=0,
+                  vcpus=1,
+                  profile=None):
+    '''
+    Create a flavor
+    '''
+    nt_ks = _get_novaclient(profile)
+    nt_ks.flavors.create(
+        name=name, flavorid=flavor_id, ram=ram, disk=disk, vcpus=vcpus
+    )
+    return {'name': name,
+            'id': flavor_id,
+            'ram': ram,
+            'disk': disk,
+            'vcpus': vcpus}
+
+
+def flavor_delete(flavor_id, profile=None):  # pylint: disable=C0103
+    '''
+    Delete a flavor
+    '''
+    nt_ks = _get_novaclient(profile)
+    nt_ks.flavors.delete(flavor_id)
+    return 'Flavor deleted: {0}'.format(flavor_id)
+
