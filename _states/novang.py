@@ -7,12 +7,19 @@ import collections
 from functools import wraps
 LOG = logging.getLogger(__name__)
 
+if 'nova.flavor_list' in __salt__:
+    flavor_list = 'nova.flavor_list'
+elif flavor_list in __salt__:
+    flavor_list = 'novang.flavor_list'
+else:
+    flavor_list = None
+
 
 def __virtual__():
     '''
     Only load if the nova module is in __salt__
     '''
-    return 'novang' if 'nova.flavor_list' in __salt__ else False
+    return 'novang' if flavor_list else False
 
 
 def flavor_present(name, flavor_id=0, ram=0, disk=0, vcpus=1, profile=None):
@@ -23,7 +30,7 @@ def flavor_present(name, flavor_id=0, ram=0, disk=0, vcpus=1, profile=None):
            'changes': {},
            'result': True,
            'comment': 'Flavor "{0}" already exists'.format(name)}
-    project = __salt__['nova.flavor_list'](profile)
+    project = __salt__[flavor_list](profile)
     if 'Error' in project:
         pass
     elif name in project:
@@ -92,7 +99,7 @@ def instance_present(name, flavor, image, networks, security_groups=None, profil
     existing_instances = __salt__['novang.server_list'](profile, tenant_name)
     if name in existing_instances:
         return ret
-    existing_flavors = __salt__['nova.flavor_list'](profile)
+    existing_flavors = __salt__[flavor_list](profile)
     if flavor in existing_flavors:
         flavor_id = existing_flavors[flavor]['id']
     else:
