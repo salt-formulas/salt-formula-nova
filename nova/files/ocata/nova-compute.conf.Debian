@@ -5693,6 +5693,9 @@ memcached_servers={%- for member in compute.cache.members %}{{ member.host }}:11
 
 # API version of the admin Identity API endpoint. (string value)
 #auth_version=<None>
+{%- if compute.identity.auth_version is defined %}
+auth_version={{ compute.identity.auth_version }}
+{%- endif %}
 
 # Do not handle authorization requests within the middleware, but delegate the
 # authorization decision to downstream WSGI components. (boolean value)
