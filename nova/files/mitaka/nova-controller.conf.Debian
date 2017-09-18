@@ -145,8 +145,10 @@ auth_url=http://{{ controller.identity.host }}:35357
 {%- if controller.cache is defined %}
 memcached_servers={%- for member in controller.cache.members %}{{ member.host }}:11211{% if not loop.last %},{% endif %}{%- endfor %}
 {%- endif %}
-{%- if controller.identity.auth_version is defined %}
-auth_version={{ controller.identity.auth_version }}
+{%- if pillar.keystone.server.api_version is defined %}
+auth_version={{ pillar.keystone.server.api_version }}
+{%- else %}
+#auth_version=<None>
 {%- endif %}
 
 [conductor]
