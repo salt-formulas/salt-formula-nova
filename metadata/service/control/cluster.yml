@@ -61,7 +61,7 @@ parameters:
         port: 9696
         mtu: 1500
       metadata:
-        password: metadataPass
+        password: ${_param:metadata_password}
       cache:
         engine: memcached
         members:

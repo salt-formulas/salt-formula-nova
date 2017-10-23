@@ -61,4 +61,4 @@ parameters:
                   port: 9696
                   mtu: 1500
                 metadata:
-                  password: ${_param:nova_metadata_password}
+                  password: ${_param:metadata_password}
