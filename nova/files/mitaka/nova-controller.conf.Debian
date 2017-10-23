@@ -12,6 +12,9 @@ volumes_dir = /etc/nova/volumes
 dhcpbridge = /usr/bin/nova-dhcpbridge
 dhcpbridge_flagfile = /etc/nova/nova.conf
 force_dhcp_release = True
+{%- if controller.dhcp_domain is defined %}
+dhcp_domain = {{ controller.dhcp_domain }}
+{%- endif %}
 injected_network_template = /usr/share/nova/interfaces.template
 libvirt_nonblocking = True
 vif_plugging_is_fatal = False
