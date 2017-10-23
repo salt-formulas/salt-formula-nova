@@ -29,6 +29,7 @@ Nova services on the controller node:
         cross_az_attach: false
         workers: 8
         report_interval: 60
+        dhcp_domain: novalocal
         bind:
           public_address: 10.0.0.122
           public_name: openstack.domain.com
