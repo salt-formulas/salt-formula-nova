@@ -148,8 +148,15 @@ Configuration of policy.json file
           # Add key without value to remove line from policy.json
           'compute:create:attach_network':
 
-Enable Barbican integration
+Configuration of the default Availability Zone, if not specified in request
 
+.. code-block:: yaml
+
+    nova:
+      controller:
+        default_schedule_zone: nova
+
+Enable Barbican integration
 .. code-block:: yaml
 
     nova:
@@ -233,7 +240,6 @@ Set the ``https`` as protocol at ``nova:compute`` and ``nova:controller`` sectio
 
 
 **Note:** the barbican, cinder and placement url endpoints are discovering using service catalog.
-
 
 Compute nodes
 -------------

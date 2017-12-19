@@ -19,6 +19,9 @@ vif_plugging_timeout = 0
 cpu_allocation_ratio = {{ controller.cpu_allocation_ratio }}
 ram_allocation_ratio = {{ controller.ram_allocation_ratio }}
 disk_allocation_ratio = {{ controller.disk_allocation_ratio }}
+{%- if controller.default_schedule_zone is defined %}
+default_schedule_zone = {{ controller.default_schedule_zone }}
+{%- endif %}
 scheduler_default_filters = {{ controller.scheduler_default_filters }}
 scheduler_available_filters = nova.scheduler.filters.all_filters
 {% for filter in controller.get('scheduler_custom_filters', []) %}
