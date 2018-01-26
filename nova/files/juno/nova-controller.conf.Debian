@@ -20,6 +20,9 @@ libvirt_use_virtio_for_bridges=True
 libvirt_inject_partition = -1
 vif_plugging_is_fatal = False
 vif_plugging_timeout = 0
+{%- if controller.default_schedule_zone is defined %}
+default_schedule_zone = {{ controller.default_schedule_zone }}
+{%- endif %}
 
 allow_resize_to_same_host = True
 
