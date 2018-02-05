@@ -424,6 +424,19 @@ Enable Barbican integration
         barbican:
           enabled: true
 
+Nova metadata custom bindings
+
+.. code-block:: yaml
+
+    nova:
+      controller:
+        enabled: true
+        ...
+        metadata:
+          bind:
+            address: 1.2.3.4
+            port: 8776
+
 
 Client role
 -----------

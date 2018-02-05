@@ -2690,7 +2690,7 @@ osapi_compute_workers = {{ controller.workers }}
 # requests.
 #  (string value)
 #metadata_listen=0.0.0.0
-metadata_listen={{ controller.bind.private_address }}
+metadata_listen={{ controller.get('metadata', {}).get('bind', {}).get('address', controller.bind.private_address) }}
 osapi_volume_listen={{ controller.bind.private_address }}
 
 #
@@ -2701,7 +2701,11 @@ osapi_volume_listen={{ controller.bind.private_address }}
 #  (port value)
 # Minimum value: 0
 # Maximum value: 65535
+{%- if controller.get('metadata', {}).get('bind', {}).port is defined %}
+metadata_listen_port={{ controller.metadata.bind.port }}
+{%- else %}
 #metadata_listen_port=8775
+{%- endif %}
 
 #
 # Number of workers for metadata service. If not specified the number of
