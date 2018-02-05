@@ -700,8 +700,9 @@ By default logging.conf is disabled.
 That is possible to enable per-binary logging.conf with new variables:
   * openstack_log_appender - set it to true to enable log_config_append for all OpenStack services;
   * openstack_fluentd_handler_enabled - set to true to enable FluentHandler for all Openstack services.
+  * openstack_ossyslog_handler_enabled - set to true to enable OSSysLogHandler for all Openstack services.
 
-Only WatchedFileHandler and FluentHandler are available.
+Only WatchedFileHandler, OSSysLogHandler and FluentHandler are available.
 
 Also it is possible to configure this with pillar:
 
@@ -716,6 +717,8 @@ Also it is possible to configure this with pillar:
               enabled: true
             fluentd:
               enabled: true
+            ossyslog:
+              enabled: true
 
     compute:
         logging:
@@ -724,6 +727,8 @@ Also it is possible to configure this with pillar:
             watchedfile:
               enabled: true
             fluentd:
+              enabled: true
+            ossyslog:
               enabled: true
 
 Documentation and Bugs
