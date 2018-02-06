@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+dpkg-maintscript-helper symlink_to_dir \
+        /usr/share/salt-formulas/env/nova/files/pike /usr/share/salt-formulas/env/nova/files/ocata salt-formula-nova -- "$@"
+
+#DEBHELPER#
+
+exit 0

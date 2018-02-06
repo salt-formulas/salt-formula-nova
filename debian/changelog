@@ -1,3 +1,9 @@
+salt-formula-nova (2016.12.1-2xenial1) xenial; urgency=medium
+
+  * Fix files/pike symlink
+
+ -- devops <devops@mirantis.com>  Tue, 06 Feb 2018 15:40:55 +0200
+
 salt-formula-nova (2016.12.1-1xenial1) xenial; urgency=medium
 
   * Build for Ubuntu Xenial
