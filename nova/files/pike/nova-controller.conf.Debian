@@ -181,7 +181,9 @@ allow_resize_to_same_host=true
 # * Any string representing an availability zone name
 # * Default value is None.
 #  (string value)
-#default_schedule_zone=<None>
+{%- if controller.default_schedule_zone is defined %}
+default_schedule_zone = {{ controller.default_schedule_zone }}
+{%- endif %}
 
 #
 # Image properties that should not be inherited from the instance
