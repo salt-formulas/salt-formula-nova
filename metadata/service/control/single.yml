@@ -8,6 +8,7 @@ parameters:
     nova_networking: default
     openstack_log_appender: false
     openstack_fluentd_handler_enabled: false
+    openstack_ossyslog_handler_enabled: false
   nova:
     controller:
       enabled: true
@@ -48,6 +49,8 @@ parameters:
             enabled: true
           fluentd:
             enabled: ${_param:openstack_fluentd_handler_enabled}
+          ossyslog:
+            enabled: ${_param:openstack_ossyslog_handler_enabled}
       message_queue:
         engine: rabbitmq
         host: ${_param:single_address}
