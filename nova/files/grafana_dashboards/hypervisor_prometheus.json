@@ -1106,7 +1106,8 @@
   "style": "dark",
   "tags": [
     "hypervisor",
-    "nova"
+    "nova",
+    "openstack"
   ],
   "templating": {
     "list": [

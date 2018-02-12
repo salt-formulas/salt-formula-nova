@@ -3505,7 +3505,7 @@
   "sharedCrosshair": true,
   "style": "dark",
   "tags": [
-    "nova"
+    "openstack"
   ],
   "templating": {
     "list": [
