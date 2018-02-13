@@ -57,6 +57,28 @@ def map_instances(name='cell1'):
     return ret
 
 
+def update_cell(name='cell1', transport_url='none:///', db_engine='mysql', db_name='nova_upgrade', db_user='nova', db_password=None, db_address='0.0.0.0'):
+    '''
+    Ensures that the nova cell is setup correctly
+    '''
+    ret = {'name': name,
+           'changes': {},
+           'result': False,
+           'comment': 'Cell "{0}" does not exists'.format(name)}
+    cell_uuid = __salt__['cmd.shell']('nova-manage cell_v2 list_cells 2>&- | grep ' + name + ' | tr -d \"\n\" | awk \'{print $4}\'')
+    if cell_uuid:
+        try:
+            __salt__['cmd.shell']('nova-manage cell_v2 update_cell --cell_uuid ' + cell_uuid + ' --transport-url ' + transport_url + ' --database_connection ' + db_engine + '+pymysql://' + db_user + ':' + db_password + '@' + db_address + '/' + db_name + '?charset=utf8')
+            ret['result'] = True
+            ret['comment'] = 'Cell {0} updated'.format(name)
+            ret['changes'][name] = 'Cell {0} successfuly updated'.format(name)
+        except:
+            ret['result'] = False
+            ret['comment'] = 'Cell {0} not updated'.format(name)
+            ret['changes'][name] = 'Cell {0} failed to be updated'.format(name)
+    return ret
+
+
 def api_db_version_present(name=None, version="20"):
     '''
     Ensures that specific api_db version is present

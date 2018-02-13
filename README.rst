@@ -158,6 +158,16 @@ Enable Barbican integration
         barbican:
           enabled: true
 
+Enable cells update:
+
+**Note:** Useful when upgrading Openstack. To update cells to test sync db agains duplicated production database.
+
+.. code-block:: yaml
+
+    nova:
+      controller:
+        update_cells: true
+
 
 Configuring TLS communications
 ------------------------------
