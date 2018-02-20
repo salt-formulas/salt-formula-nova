@@ -265,6 +265,45 @@ nova_cell1_create:
   - require:
     - cmd: nova_controller_syncdb
 
+{%- if controller.get('update_cells') %}
+
+nova_update_cell0:
+  novang.update_cell:
+  - name: "cell0"
+  - db_name: {{ controller.database.name }}_cell0
+  - db_engine: {{ controller.database.engine }}
+  - db_password: {{ controller.database.password }}
+  - db_user: {{ controller.database.user }}
+  - db_address: {{ controller.database.host }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+{%- set rabbit_port = controller.message_queue.get('port', 5671 if controller.message_queue.get('ssl',{}).get('enabled', False) else 5672) %}
+
+nova_update_cell1:
+  novang.update_cell:
+  - name: "cell1"
+  - db_name: {{ controller.database.name }}
+{%- if controller.message_queue.members is defined %}
+  - transport_url = rabbit://{% for member in controller.message_queue.members -%}
+                             {{ controller.message_queue.user }}:{{ controller.message_queue.password }}@{{ member.host }}:{{ member.get('port', rabbit_port) }}
+                             {%- if not loop.last -%},{%- endif -%}
+                         {%- endfor -%}
+                             /{{ controller.message_queue.virtual_host }}
+{%- else %}
+  - transport_url: rabbit://{{ controller.message_queue.user }}:{{ controller.message_queue.password }}@{{ controller.message_queue.host }}:{{ rabbit_port}}/{{ controller.message_queue.virtual_host }}
+{%- endif %}
+  - db_engine: {{ controller.database.engine }}
+  - db_password: {{ controller.database.password }}
+  - db_user: {{ controller.database.user }}
+  - db_address: {{ controller.database.host }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+{%- endif %}
+
 nova_placement_service_mask:
   file.symlink:
    - name: /etc/systemd/system/nova-placement-api.service
