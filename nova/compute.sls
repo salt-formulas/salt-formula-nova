@@ -177,7 +177,11 @@ Add_compute_to_availability_zone_{{ compute.availability_zone }}:
 Add_compute_to_aggregate_{{ aggregate }}:
   cmd.run:
   - name: "nova {{ identity_params }} aggregate-add-host {{ aggregate }} {{ pillar.linux.system.name }}"
+  {%- if compute.version in ['juno','kilo','liberty','mitaka'] %}
   - unless: "nova {{ identity_params }} aggregate-details {{ aggregate }} | grep {{ pillar.linux.system.name }}"
+  {%- else %}
+  - unless: "nova {{ identity_params }} aggregate-show {{ aggregate }} | grep {{ pillar.linux.system.name }}"
+  {%- endif %}
 
 {%- endfor %}
 
