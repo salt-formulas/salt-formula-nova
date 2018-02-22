@@ -17,22 +17,24 @@ install:
   - bundle install
 
 env:
-  - PLATFORM=trevorj/salty-whales:trusty-2017.7 OS_VERSION=mitaka SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:trusty-2017.7 OS_VERSION=mitaka SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:xenial-2017.7 OS_VERSION=mitaka SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:xenial-2017.7 OS_VERSION=mitaka SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:xenial-2017.7 OS_VERSION=newton SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:xenial-2017.7 OS_VERSION=newton SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:xenial-2017.7 OS_VERSION=ocata SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:xenial-2017.7 OS_VERSION=ocata SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:trusty OS_VERSION=mitaka SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:trusty OS_VERSION=mitaka SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:xenial OS_VERSION=mitaka SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:xenial OS_VERSION=mitaka SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:xenial OS_VERSION=newton SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:xenial OS_VERSION=newton SUITE=control-cluster
-  - PLATFORM=trevorj/salty-whales:xenial OS_VERSION=ocata SUITE=compute-cluster
-  - PLATFORM=trevorj/salty-whales:xenial OS_VERSION=ocata SUITE=control-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=mitaka SUITE=compute-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=mitaka SUITE=control-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=mitaka SUITE=compute-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=mitaka SUITE=control-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=newton SUITE=compute-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=newton SUITE=control-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=newton SUITE=compute-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=newton SUITE=control-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=ocata SUITE=compute-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=ocata SUITE=control-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=ocata SUITE=compute-cluster
+  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=ocata SUITE=control-cluster
+  # - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 OS_VERSION=mitaka SUITE=compute-cluster
+  # - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 OS_VERSION=mitaka SUITE=control-cluster
+  # - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 OS_VERSION=newton SUITE=compute-cluster
+  # - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 OS_VERSION=newton SUITE=control-cluster
+  # - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 OS_VERSION=ocata SUITE=compute-cluster
+  # - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 OS_VERSION=ocata SUITE=control-cluster
 
 before_script:
   - set -o pipefail
