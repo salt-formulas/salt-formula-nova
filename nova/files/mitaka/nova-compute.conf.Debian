@@ -26,6 +26,7 @@ pci_passthrough_whitelist = {"devname":"{{ sriov.devname }}","physical_network":
 {%- if compute.image.use_cow is defined %}
 use_cow_images = {{ compute.image.use_cow }}
 {%- endif %}
+force_raw_images={{ compute.get('image', {}).get('force_raw', True)|lower }}
 {%- if compute.my_ip is defined %}
 my_ip={{ compute.my_ip }}
 {%- endif %}

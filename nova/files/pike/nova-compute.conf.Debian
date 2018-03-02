@@ -399,7 +399,7 @@ use_cow_images = {{ compute.image.use_cow }}
 # * ``compute_driver``: Only the libvirt driver uses this option.
 #  (boolean value)
 #force_raw_images=true
-force_raw_images=true
+force_raw_images={{ compute.get('image', {}).get('force_raw', True)|lower }}
 
 #
 # Name of the mkfs commands for ephemeral device.
