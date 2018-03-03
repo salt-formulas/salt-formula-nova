@@ -2,7 +2,7 @@ nova:
   controller:
     enabled: true
     networking: default
-    version: liberty
+    version: pike
     vncproxy_url: 127.0.0.1
     vnc_keymap: en-gb
     security_group: false
@@ -75,3 +75,40 @@ nova:
       compute: liberty
     barbican:
       enabled: true
+apache:
+  server:
+    enabled: true
+    default_mpm: event
+    mpm:
+      prefork:
+        enabled: true
+        servers:
+          start: 5
+          spare:
+            min: 2
+            max: 10
+        max_requests: 0
+        max_clients: 20
+        limit: 20
+    site:
+      nova_placement:
+        enabled: false
+        available: true
+        type: wsgi
+        name: nova_placement
+        wsgi:
+          daemon_process: nova-placement
+          processes: 5
+          threads: 1
+          user: nova
+          group: nova
+          display_name: '%{GROUP}'
+          script_alias: '/ /usr/bin/nova-placement-api'
+          application_group: '%{GLOBAL}'
+          authorization: 'On'
+        limits:
+          request_body: 114688
+        host:
+          address: 127.0.0.1
+          name: 127.0.0.1
+          port: 8778

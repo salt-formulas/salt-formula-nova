@@ -18,11 +18,8 @@ install:
 
 env:
   - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=mitaka SUITE=compute-cluster
-  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=mitaka SUITE=control-cluster
   - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=mitaka SUITE=compute-cluster
-  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=mitaka SUITE=control-cluster
   - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=newton SUITE=compute-cluster
-  - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=newton SUITE=control-cluster
   - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=newton SUITE=compute-cluster
   - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 OS_VERSION=newton SUITE=control-cluster
   - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 OS_VERSION=ocata SUITE=compute-cluster

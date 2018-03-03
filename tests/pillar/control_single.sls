@@ -2,7 +2,7 @@ nova:
   controller:
     enabled: true
     networking: contrail
-    version: liberty
+    version: pike
     security_group: false
     vncproxy_url: 127.0.0.1
     vnc_keymap: en-gb
@@ -69,3 +69,18 @@ nova:
       'context_is_admin': 'role:admin or role:administrator'
       'compute:create': 'rule:admin_or_owner'
       'compute:create:attach_network':
+apache:
+  server:
+    enabled: true
+    default_mpm: event
+    mpm:
+      prefork:
+        enabled: true
+        servers:
+          start: 5
+          spare:
+            min: 2
+            max: 10
+        max_requests: 0
+        max_clients: 20
+        limit: 20

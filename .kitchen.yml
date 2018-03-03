@@ -21,6 +21,9 @@ provisioner:
     - name: keystone
       repo: git
       source: https://github.com/salt-formulas/salt-formula-keystone
+    - name: apache
+      repo: git
+      source: https://github.com/salt-formulas/salt-formula-apache
   state_top:
     base:
       "*":
@@ -67,5 +70,6 @@ suites:
           nova:
             controller:
               version: <%= ENV['OS_VERSION'] || 'ocata' %>
+
 
 # vim: ft=yaml sw=2 ts=2 sts=2 tw=125
