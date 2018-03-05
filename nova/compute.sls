@@ -313,7 +313,7 @@ ceph_virsh_secret_set_value_nova:
 
 {%- if grains.get('init', None) == 'systemd' %}
 
-libvirt_restart_systemd:
+nova_libvirt_restart_systemd:
   module.wait:
   - name: service.systemctl_reload
   - watch:
