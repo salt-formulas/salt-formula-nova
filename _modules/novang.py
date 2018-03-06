@@ -59,6 +59,7 @@ def _authng(profile=None, tenant_name=None):
         os_auth_system = __salt__['config.option']('keystone.os_auth_system')
         use_keystoneauth = __salt__['config.option']('keystone.use_keystoneauth', False)
         verify = __salt__['config.option']('keystone.verify', True)
+
     kwargs = {
         'username': user,
         'password': password,
@@ -68,7 +69,8 @@ def _authng(profile=None, tenant_name=None):
         'region_name': region_name,
         'os_auth_plugin': os_auth_system,
         'use_keystoneauth': use_keystoneauth,
-        'verify': verify
+        'verify': verify,
+        'profile': profile
     }
     return SaltNova(**kwargs)
 
@@ -546,215 +548,21 @@ class SaltNova(object):
         os_auth_plugin=None,
         use_keystoneauth=False,
         verify=True,
+        profile=None,
         **kwargs
     ):
         '''
         Set up nova credentials
         '''
-        if all([use_keystoneauth, HAS_KEYSTONEAUTH]):
-            self._new_init(username=username,
-                           project_id=project_id,
-                           auth_url=auth_url,
-                           region_name=region_name,
-                           password=password,
-                           os_auth_plugin=os_auth_plugin,
-                           verify=verify,
-                           **kwargs)
-        else:
-            self._old_init(username=username,
-                           project_id=project_id,
-                           auth_url=auth_url,
-                           region_name=region_name,
-                           password=password,
-                           os_auth_plugin=os_auth_plugin,
-                           verify=verify,
-                           **kwargs)
 
-    def _new_init(self, username, project_id, auth_url, region_name, password, os_auth_plugin, auth=None, verify=True, **kwargs):
-        if auth is None:
-            auth = {}
+        self._keystoneng_init(profile=profile, **kwargs)
 
-        loader = keystoneauth1.loading.get_plugin_loader(os_auth_plugin or 'password')
-
-        self.client_kwargs = kwargs.copy()
-        self.kwargs = auth.copy()
-        if not self.extensions:
-            if hasattr(OpenStackComputeShell, '_discover_extensions'):
-                self.extensions = OpenStackComputeShell()._discover_extensions('2.0')
-            else:
-                self.extensions = client.discover_extensions('2.0')
-            for extension in self.extensions:
-                extension.run_hooks('__pre_parse_args__')
-            self.client_kwargs['extensions'] = self.extensions
-
-        self.kwargs['username'] = username
-        self.kwargs['project_name'] = project_id
-        self.kwargs['auth_url'] = auth_url
-        self.kwargs['password'] = password
-        if auth_url.endswith('3'):
-            self.kwargs['user_domain_name'] = kwargs.get('user_domain_name', 'default')
-            self.kwargs['project_domain_name'] = kwargs.get('project_domain_name', 'default')
-
-        self.client_kwargs['region_name'] = region_name
-        self.client_kwargs['service_type'] = 'compute'
-
-        if hasattr(self, 'extensions'):
-            # needs an object, not a dictionary
-            self.kwargstruct = KwargsStruct(**self.client_kwargs)
-            for extension in self.extensions:
-                extension.run_hooks('__post_parse_args__', self.kwargstruct)
-            self.client_kwargs = self.kwargstruct.__dict__
-
-        # Requires novaclient version >= 2.6.1
+    def _keystoneng_init(self, profile, **kwargs):
+        kstone = __salt__['keystoneng.auth'](profile, **kwargs)
+        self.session = kstone.session
         self.version = str(kwargs.get('version', 2))
-
-        self.client_kwargs = sanatize_novaclient(self.client_kwargs)
-        options = loader.load_from_options(**self.kwargs)
-        self.session = keystoneauth1.session.Session(auth=options, verify=verify)
-        conn = client.Client(version=self.version, session=self.session, **self.client_kwargs)
-        self.kwargs['auth_token'] = conn.client.session.get_token()
-        if conn.client.get_endpoint(service_type='identity').endswith('v3'):
-            self.catalog = conn.client.session.get('/auth/catalog', endpoint_filter={'service_type': 'identity'}).json().get('catalog', [])
-            self._v3_setup(region_name)
-        else:
-            if OCATA:
-                endpoints_v2 = conn.client.session.get('/endpoints', endpoint_filter={'service_type': 'identity', 'interface': 'admin'}).json().get('endpoints', [])
-                services = conn.client.session.get('/OS-KSADM/services', endpoint_filter={'service_type': 'identity', 'interface': 'admin'}).json().get('OS-KSADM:services', [])
-                self.catalog = _format_v2_endpoints(endpoints_v2, services)
-            else:
-                self.catalog = conn.client.service_catalog.catalog['access']['serviceCatalog']
-            self._v2_setup(region_name)
-
-    def _old_init(self, username, project_id, auth_url, region_name, password, os_auth_plugin, **kwargs):
-        self.kwargs = kwargs.copy()
-        if not self.extensions:
-            if hasattr(OpenStackComputeShell, '_discover_extensions'):
-                self.extensions = OpenStackComputeShell()._discover_extensions('2.0')
-            else:
-                self.extensions = client.discover_extensions('2.0')
-            for extension in self.extensions:
-                extension.run_hooks('__pre_parse_args__')
-            self.kwargs['extensions'] = self.extensions
-
-        self.kwargs['username'] = username
-        self.kwargs['project_id'] = project_id
-        self.kwargs['auth_url'] = auth_url
-        self.kwargs['region_name'] = region_name
-        self.kwargs['service_type'] = 'compute'
-
-        # used in novaclient extensions to see if they are rackspace or not, to know if it needs to load
-        # the hooks for that extension or not.  This is cleaned up by sanatize_novaclient
-        self.kwargs['os_auth_url'] = auth_url
-
-        if os_auth_plugin is not None:
-            if OCATA:
-                msg = 'Module auth_plugin is no longer present in python-novaclient >= 7.0.0'
-                raise Exception(msg)
-            else:
-                novaclient.auth_plugin.discover_auth_systems()
-                auth_plugin = novaclient.auth_plugin.load_plugin(os_auth_plugin)
-                self.kwargs['auth_plugin'] = auth_plugin
-                self.kwargs['auth_system'] = os_auth_plugin
-
-        if not self.kwargs.get('api_key', None):
-            self.kwargs['api_key'] = password
-
-        # This has to be run before sanatize_novaclient before extra variables are cleaned out.
-        if hasattr(self, 'extensions'):
-            # needs an object, not a dictionary
-            self.kwargstruct = KwargsStruct(**self.kwargs)
-            for extension in self.extensions:
-                extension.run_hooks('__post_parse_args__', self.kwargstruct)
-            self.kwargs = self.kwargstruct.__dict__
-
-        self.kwargs = sanatize_novaclient(self.kwargs)
-
-        # Requires novaclient version >= 2.6.1
-        self.kwargs['version'] = str(kwargs.get('version', 2))
-
-        conn = client.Client(**self.kwargs)
-        try:
-            conn.client.authenticate()
-        except novaclient.exceptions.AmbiguousEndpoints:
-            raise SaltCloudSystemExit(
-                "Nova provider requires a 'region_name' to be specified"
-            )
-
-        self.kwargs['auth_token'] = conn.client.auth_token
-
-        # There is currently no way to get service catalog in the expected format with Ocata compatible
-        # python-novaclient in _old_init, because there is no session
-        if OCATA:
-            msg = 'Method service_catalog is no longer present in python-novaclient >= 7.0.0'
-            raise Exception(msg)
-
-        self.catalog = conn.client.service_catalog.catalog['access']['serviceCatalog']
-
-        self._v2_setup(region_name)
-
-    def _v3_setup(self, region_name):
-        if region_name is not None:
-            servers_endpoints = get_entry(self.catalog, 'type', 'compute')['endpoints']
-            self.kwargs['bypass_url'] = get_entry_multi(
-                servers_endpoints,
-                [('region', region_name), ('interface', 'public')]
-            )['url']
-
-        if hasattr(self, 'session'):
-            self.compute_conn = client.Client(version=self.version, session=self.session, **self.client_kwargs)
-        else:
-            self.compute_conn = client.Client(**self.kwargs)
-
-        volume_endpoints = get_entry(self.catalog, 'type', 'volume', raise_error=False).get('endpoints', {})
-        if volume_endpoints:
-            if region_name is not None:
-                self.kwargs['bypass_url'] = get_entry_multi(
-                    volume_endpoints,
-                    [('region', region_name), ('interface', 'public')]
-                )['url']
-
-            if hasattr(self, 'session'):
-                self.volume_conn = client.Client(version=self.version, session=self.session, **self.client_kwargs)
-            else:
-                self.volume_conn = client.Client(**self.kwargs)
-
-            if hasattr(self, 'extensions'):
-                self.expand_extensions()
-        else:
-            self.volume_conn = None
-
-    def _v2_setup(self, region_name):
-        if region_name is not None:
-            servers_endpoints = get_entry(self.catalog, 'type', 'compute')['endpoints']
-            self.kwargs['bypass_url'] = get_entry(
-                servers_endpoints,
-                'region',
-                region_name
-            )['publicURL']
-
-        if hasattr(self, 'session'):
-            self.compute_conn = client.Client(version=self.version, session=self.session, **self.client_kwargs)
-        else:
-            self.compute_conn = client.Client(**self.kwargs)
-
-        volume_endpoints = get_entry(self.catalog, 'type', 'volume', raise_error=False).get('endpoints', {})
-        if volume_endpoints:
-            if region_name is not None:
-                self.kwargs['bypass_url'] = get_entry(
-                    volume_endpoints,
-                    'region',
-                    region_name
-                )['publicURL']
-
-            if hasattr(self, 'session'):
-                self.volume_conn = client.Client(version=self.version, session=self.session, **self.client_kwargs)
-            else:
-                self.volume_conn = client.Client(**self.kwargs)
-
-            if hasattr(self, 'extensions'):
-                self.expand_extensions()
-        else:
-            self.volume_conn = None
+        self.compute_conn = client.Client(version=self.version, session=self.session)
+        self.volume_conn = client.Client(version=self.version, session=self.session)
 
     def expand_extensions(self):
         for connection in (self.compute_conn, self.volume_conn):
@@ -1591,7 +1399,8 @@ def _auth(profile=None):
         'region_name': region_name,
         'os_auth_plugin': os_auth_system,
         'use_keystoneauth': use_keystoneauth,
-        'verify': verify
+        'verify': verify,
+        'profile': profile
     }
 
     return SaltNova(**kwargs)
