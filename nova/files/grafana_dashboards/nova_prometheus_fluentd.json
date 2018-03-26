@@ -2607,7 +2607,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_nova_total_used_vcpus",
+              "expr": "max(openstack_nova_total_used_vcpus)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2685,7 +2685,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_nova_total_used_disk",
+              "expr": "max(openstack_nova_total_used_disk)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2763,7 +2763,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_nova_total_used_ram",
+              "expr": "max(openstack_nova_total_used_ram)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2841,7 +2841,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_nova_total_free_vcpus",
+              "expr": "max(openstack_nova_total_free_vcpus)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2919,7 +2919,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_nova_total_free_disk",
+              "expr": "max(openstack_nova_total_free_disk)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2997,7 +2997,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_nova_total_free_ram",
+              "expr": "max(openstack_nova_total_free_ram)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
