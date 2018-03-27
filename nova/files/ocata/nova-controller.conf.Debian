@@ -1511,6 +1511,9 @@ my_ip={{ controller.bind.private_address }}
 # * String with hostname, FQDN or IP address. Default is hostname of this host.
 #  (string value)
 #host=lcy01-22
+{%- if controller.host is defined %}
+host={{ controller.host }}
+{%- endif %}
 
 #
 # Assign IPv6 and IPv4 addresses when creating instances.

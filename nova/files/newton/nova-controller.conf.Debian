@@ -95,6 +95,11 @@ transport_url = rabbit://{{ controller.message_queue.user }}:{{ controller.messa
 
 {# rabbitmq ssl configuration #}
 {%- if controller.message_queue.get('ssl',{}).get('enabled', False) %}
+
+{%- if controller.host is defined %}
+host={{ controller.host }}
+{%- endif %}
+
 [oslo_messaging_rabbit]
 rabbit_use_ssl=true
 

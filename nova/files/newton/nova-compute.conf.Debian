@@ -180,7 +180,11 @@ memcache_servers={%- for member in compute.cache.members %}{{ member.host }}:112
 
 [libvirt]
 cpu_mode = {{ compute.get('cpu_mode', 'host-passthrough') }}
+{%- if compute.libvirt.virt_type is defined %}
+virt_type = {{ compute.libvirt.virt_type }}
+{%-  else %}
 virt_type = kvm
+{%- endif%}
 inject_partition=-2
 inject_password=False
 disk_cachemodes="{{ compute.get('disk_cachemodes', 'network=writeback,block=none') }}"
