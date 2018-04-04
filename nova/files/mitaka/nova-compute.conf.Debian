@@ -110,7 +110,11 @@ driver = messagingv2
 enabled = true
 novncproxy_base_url={{ compute.vncproxy_url }}/vnc_auto.html
 novncproxy_port={{ compute.bind.vnc_port }}
+{%- if compute.bind.vnc_address is defined %}
+vncserver_listen={{ compute.bind.vnc_address }}
+{%- else %}
 vncserver_listen=0.0.0.0
+{%- endif %}
 vncserver_proxyclient_address={{ compute.bind.vnc_address }}
 keymap = {{ compute.get('vnc_keymap', 'en-us') }}
 
