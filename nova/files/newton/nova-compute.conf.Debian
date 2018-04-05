@@ -159,9 +159,13 @@ novncproxy_base_url={{ compute.vncproxy_url }}/vnc_auto.html
 {%- if compute.get('bind', {}).get('vnc_port') %}
 novncproxy_port={{ compute.bind.vnc_port }}
 {%- endif %}
-vncserver_listen=0.0.0.0
-{%- if compute.get('bind', {}).get('vnc_address') %}
+{%- if compute.bind is defined %}
+{%- if compute.bind.vnc_address is defined %}
+vncserver_listen={{ compute.bind.vnc_address }}
 vncserver_proxyclient_address={{ compute.bind.vnc_address }}
+{%- else %}
+vncserver_listen=0.0.0.0
+{%- endif %}
 {%- endif %}
 keymap = {{ compute.get('vnc_keymap', 'en-us') }}
 
