@@ -94,6 +94,9 @@ image_service=nova.image.glance.GlanceImageService
 #    starting on 15th day of month.
 #  (string value)
 #instance_usage_audit_period=month
+{% if controller.instance_usage_audit_period is defined %}
+instance_usage_audit_period = {{ controller.instance_usage_audit_period }}
+{%- endif %}
 
 #
 # Start and use a daemon that can run the commands that need to be run with
@@ -639,6 +642,9 @@ disk_allocation_ratio = {{ controller.disk_allocation_ratio }}
 # notifications are consumed by OpenStack Telemetry service.
 #  (boolean value)
 #instance_usage_audit=false
+{% if controller.instance_usage_audit is defined %}
+instance_usage_audit = {{ controller.instance_usage_audit }}
+{%- endif %}
 
 #
 # Maximum number of 1 second retries in live_migration. It specifies number
@@ -7291,6 +7297,11 @@ service_metadata_proxy=True
 # Allowed values: <None>, vm_state, vm_and_task_state
 # Deprecated group/name - [DEFAULT]/notify_on_state_change
 #notify_on_state_change=<None>
+{%- if controller.get('notification', {}).notify_on is defined %}
+{%- for key, value in controller.notification.notify_on.iteritems() %}
+notify_on_{{ key }} = {{ value }}
+{%- endfor %}
+{%- endif %}
 
 #
 # If enabled, send api.fault notifications on caught exceptions in the
