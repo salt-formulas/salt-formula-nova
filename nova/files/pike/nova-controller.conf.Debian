@@ -158,7 +158,7 @@ rootwrap_config=/etc/nova/rootwrap.conf
 # * ``hyperv.HyperVDriver``
 #  (string value)
 #compute_driver=<None>
-compute_driver=libvirt.LibvirtDriver
+compute_driver = {{ controller.get('compute_driver', 'libvirt.LibvirtDriver') }}
 
 #
 # Allow destination machine to match source for resize. Useful when
@@ -5512,6 +5512,7 @@ verify_glance_signatures=true
 #filesystems =
 
 
+{% if controller.ironic is defined -%}
 [ironic]
 #
 # Configuration options for Ironic driver (Bare Metal).
@@ -5529,7 +5530,7 @@ verify_glance_signatures=true
 #
 
 # URL override for the Ironic API endpoint. (string value)
-#api_endpoint=http://ironic.example.org:6385/
+api_endpoint={{ controller.ironic.get('protocol', 'http') }}://{{ controller.ironic.host }}:{{ controller.ironic.port }}
 
 #
 # The number of times to retry when a request conflicts.
@@ -5559,10 +5560,9 @@ verify_glance_signatures=true
 
 # PEM encoded Certificate Authority to use when verifying HTTPs connections.
 # (string value)
-#cafile=<None>
-
-# PEM encoded client certificate cert file (string value)
-#certfile=<None>
+{%- if controller.ironic.get('protocol', 'http') == 'https' %}
+cafile={{ controller.identity.get('cacert_file', controller.cacert_file) }}
+{%- endif %}
 
 # PEM encoded client certificate key file (string value)
 #keyfile=<None>
@@ -5575,13 +5575,13 @@ verify_glance_signatures=true
 
 # Authentication type to load (string value)
 # Deprecated group/name - [ironic]/auth_plugin
-#auth_type=<None>
+auth_type={{ controller.ironic.auth_type }}
 
 # Config Section from which to load plugin specific options (string value)
 #auth_section=<None>
 
 # Authentication URL (string value)
-#auth_url=<None>
+auth_url={{ controller.identity.get('protocol', 'http') }}://{{ controller.identity.host }}:{{ controller.identity.port }}/v3
 
 # Domain ID to scope to (string value)
 #domain_id=<None>
@@ -5593,13 +5593,13 @@ verify_glance_signatures=true
 #project_id=<None>
 
 # Project name to scope to (string value)
-#project_name=<None>
+project_name={{ controller.identity.tenant }}
 
 # Domain ID containing project (string value)
 #project_domain_id=<None>
 
 # Domain name containing project (string value)
-#project_domain_name=<None>
+project_domain_name={{ controller.ironic.project_domain_name }}
 
 # Trust ID (string value)
 #trust_id=<None>
@@ -5609,16 +5609,17 @@ verify_glance_signatures=true
 
 # Username (string value)
 # Deprecated group/name - [ironic]/user-name
-#username=<None>
+username={{ controller.ironic.user }}
 
 # User's domain id (string value)
 #user_domain_id=<None>
 
 # User's domain name (string value)
-#user_domain_name=<None>
+user_domain_name={{ controller.ironic.user_domain_name }}
 
 # User's password (string value)
-#password=<None>
+password={{ controller.ironic.password }}
+{%- endif %}
 
 
 [key_manager]
