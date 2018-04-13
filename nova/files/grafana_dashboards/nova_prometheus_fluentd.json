@@ -591,7 +591,7 @@
     },
     {
       "collapse": false,
-      "height": "250px",
+      "height": 220,
       "panels": [
         {
           "content": "<br />\n<h3 align=\"center\"> Compute nodes </h3>",
@@ -604,6 +604,83 @@
           "style": {},
           "title": "",
           "type": "text"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(71, 212, 59, 0.4)",
+            "rgba(245, 150, 40, 0.73)",
+            "rgba(225, 40, 40, 0.59)"
+          ],
+          "datasource": "prometheus",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "id": 52,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": "",
+          "title": "En/Up",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
         },
         {
           "cacheTimeout": null,
@@ -656,11 +733,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.compute\", state=\"disabled\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -669,7 +747,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Disabled",
+          "title": "En/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -732,11 +810,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.compute\", state=\"up\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -745,7 +824,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Up",
+          "title": "Dis/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -808,11 +887,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.compute\", state=\"down\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -821,7 +901,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Down",
+          "title": "Dis/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -861,17 +941,41 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 7,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.compute\"}) by (state)",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{ state }}",
+              "legendFormat": "en/up",
               "refId": "A",
-              "step": 4
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 1 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "en/down",
+              "refId": "B",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/up",
+              "refId": "C",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.compute\"} == 0 and openstack_nova_service_state{service=~\"nova.compute\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/down",
+              "refId": "D",
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -940,6 +1044,83 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
+          "id": 53,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": "",
+          "title": "En/Up",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(71, 212, 59, 0.4)",
+            "rgba(245, 150, 40, 0.73)",
+            "rgba(225, 40, 40, 0.59)"
+          ],
+          "datasource": "prometheus",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
           "id": 14,
           "interval": null,
           "links": [],
@@ -973,11 +1154,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.scheduler\", state=\"disabled\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -986,7 +1168,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Disabled",
+          "title": "En/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1049,11 +1231,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.scheduler\", state=\"up\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1062,7 +1245,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Up",
+          "title": "Dis/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1125,11 +1308,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.scheduler\", state=\"down\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1138,7 +1322,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Down",
+          "title": "Dis/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1178,17 +1362,41 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 7,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.scheduler\"}) by (state)",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{ state }}",
+              "legendFormat": "en/up",
               "refId": "A",
-              "step": 4
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 1 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "en/down",
+              "refId": "B",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/up",
+              "refId": "C",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.scheduler\"} == 0 and openstack_nova_service_state{service=~\"nova.scheduler\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/down",
+              "refId": "D",
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -1290,11 +1498,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.conductor\", state=\"disabled\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1303,7 +1512,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Disabled",
+          "title": "En/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1366,11 +1575,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.conductor\", state=\"up\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1379,7 +1589,84 @@
             }
           ],
           "thresholds": "",
-          "title": "Up",
+          "title": "En/Down",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(71, 212, 59, 0.4)",
+            "rgba(245, 150, 40, 0.73)",
+            "rgba(225, 40, 40, 0.59)"
+          ],
+          "datasource": "prometheus",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "id": 54,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": "",
+          "title": "Dis/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1442,11 +1729,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.conductor\", state=\"down\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1455,7 +1743,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Down",
+          "title": "Dis/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1495,17 +1783,41 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 7,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.conductor\"}) by (state)",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{ state }}",
+              "legendFormat": "en/up",
               "refId": "A",
-              "step": 4
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 1 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "en/down",
+              "refId": "B",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/up",
+              "refId": "C",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.conductor\"} == 0 and openstack_nova_service_state{service=~\"nova.conductor\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/down",
+              "refId": "D",
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -1607,11 +1919,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.cert\", state=\"disabled\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1620,7 +1933,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Disabled",
+          "title": "En/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1683,11 +1996,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.cert\", state=\"up\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1696,7 +2010,84 @@
             }
           ],
           "thresholds": "",
-          "title": "Up",
+          "title": "En/Down",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(71, 212, 59, 0.4)",
+            "rgba(245, 150, 40, 0.73)",
+            "rgba(225, 40, 40, 0.59)"
+          ],
+          "datasource": "prometheus",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "id": 55,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": "",
+          "title": "Dis/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1759,11 +2150,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.cert\", state=\"down\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1772,7 +2164,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Down",
+          "title": "Dis/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1812,17 +2204,41 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 7,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.cert\"}) by (state)",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{ state }}",
+              "legendFormat": "en/up",
               "refId": "A",
-              "step": 4
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 1 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "en/down",
+              "refId": "B",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/up",
+              "refId": "C",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.cert\"} == 0 and openstack_nova_service_state{service=~\"nova.cert\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/down",
+              "refId": "D",
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -1924,11 +2340,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.consoleauth\", state=\"disabled\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -1937,7 +2354,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Disabled",
+          "title": "En/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -2000,11 +2417,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.consoleauth\", state=\"up\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2013,7 +2431,84 @@
             }
           ],
           "thresholds": "",
-          "title": "Up",
+          "title": "En/Down",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(71, 212, 59, 0.4)",
+            "rgba(245, 150, 40, 0.73)",
+            "rgba(225, 40, 40, 0.59)"
+          ],
+          "datasource": "prometheus",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "id": 56,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": "",
+          "title": "Dis/Up",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -2076,11 +2571,12 @@
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
             "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "show": false
           },
+          "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.consoleauth\", state=\"down\"})",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) - 1",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -2089,7 +2585,7 @@
             }
           ],
           "thresholds": "",
-          "title": "Down",
+          "title": "Dis/Down",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -2129,17 +2625,41 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 7,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "max(openstack_nova_services{service=~\"nova.consoleauth\"}) by (state)",
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) - 1",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{ state }}",
+              "legendFormat": "en/up",
               "refId": "A",
-              "step": 4
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 1 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "en/down",
+              "refId": "B",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 1) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/up",
+              "refId": "C",
+              "step": 10
+            },
+            {
+              "expr": "count(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) or absent(openstack_nova_service_status{service=~\"nova.consoleauth\"} == 0 and openstack_nova_service_state{service=~\"nova.consoleauth\"} == 0) - 1",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "dis/down",
+              "refId": "D",
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3068,7 +3588,7 @@
               "intervalFactor": 2,
               "legendFormat": "{{ aggregate }}",
               "refId": "A",
-              "step": 4
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3145,7 +3665,7 @@
               "intervalFactor": 2,
               "legendFormat": "{{ aggregate }}",
               "refId": "A",
-              "step": 4
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3222,7 +3742,7 @@
               "intervalFactor": 2,
               "legendFormat": "{{ aggregate }}",
               "refId": "A",
-              "step": 4
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3299,7 +3819,7 @@
               "intervalFactor": 2,
               "legendFormat": "{{ aggregate }}",
               "refId": "A",
-              "step": 4
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3376,7 +3896,7 @@
               "intervalFactor": 2,
               "legendFormat": "{{ aggregate }}",
               "refId": "A",
-              "step": 4
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3453,7 +3973,7 @@
               "intervalFactor": 2,
               "legendFormat": "{{ aggregate }}",
               "refId": "A",
-              "step": 4
+              "step": 10
             }
           ],
           "thresholds": [],
@@ -3563,6 +4083,6 @@
   },
   "timezone": "browser",
   "title": "Nova",
-  "version": 3
+  "version": 4
 }
 {% endraw %}
