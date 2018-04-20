@@ -6456,7 +6456,7 @@ live_migration_tunnelled = {{ compute.libvirt.live_migration_tunnelled }}
 #   This would result in an error and the instance won't be launched.
 # * ``virt_type``: Only the virtualization types ``kvm`` and ``qemu`` use this.
 #  (string value)
-{%- if compute.get('libvirt', {}).get('cpu_model') is defined %}
+{%- if compute.get('libvirt', {}).cpu_model is defined %}
 cpu_model = {{ compute.libvirt.cpu_model }}
 {%- else %}
 #cpu_model=<None>
