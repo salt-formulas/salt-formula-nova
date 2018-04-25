@@ -5939,7 +5939,7 @@ memcached_servers={%- for member in compute.cache.members %}{{ member.host }}:11
 #
 # From nova.conf
 #
-cpu_mode = {{ compute.get('cpu_mode', 'host-passthrough') }}
+cpu_mode = {{ compute.cpu_mode }}
 {%- if compute.libvirt.virt_type is defined %}
 virt_type = {{ compute.libvirt.virt_type }}
 {%-  else %}
@@ -6456,7 +6456,7 @@ live_migration_tunnelled = {{ compute.libvirt.live_migration_tunnelled }}
 #   This would result in an error and the instance won't be launched.
 # * ``virt_type``: Only the virtualization types ``kvm`` and ``qemu`` use this.
 #  (string value)
-{%- if compute.get('libvirt', {}).cpu_model is defined %}
+{%- if compute.get('libvirt', {}).cpu_model is defined and compute.cpu_mode == 'custom' %}
 cpu_model = {{ compute.libvirt.cpu_model }}
 {%- else %}
 #cpu_model=<None>

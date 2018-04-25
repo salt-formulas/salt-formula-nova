@@ -183,7 +183,7 @@ memcache_servers={%- for member in compute.cache.members %}{{ member.host }}:112
 {%- endif %}
 
 [libvirt]
-cpu_mode = {{ compute.get('cpu_mode', 'host-passthrough') }}
+cpu_mode = {{ compute.cpu_mode }}
 {%- if compute.libvirt.virt_type is defined %}
 virt_type = {{ compute.libvirt.virt_type }}
 {%-  else %}
@@ -201,6 +201,9 @@ live_migration_inbound_addr = {{ compute.libvirt.migration_inbound_addr }}
 libvirt_inject_key=True
 inject_key=False
 vif_driver=nova.virt.libvirt.vif.LibvirtGenericVIFDriver
+{%- if compute.get('libvirt', {}).cpu_model is defined and compute.cpu_mode == 'custom' %}
+cpu_model = {{ compute.libvirt.cpu_model }}
+{%- endif %}
 
 {%- if compute.get('ceph', {}).ephemeral is defined %}
 images_type=rbd

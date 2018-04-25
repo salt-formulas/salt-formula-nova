@@ -633,6 +633,18 @@ things. Defaults to host-passthrough.
     compute:
       cpu_mode: host-model
 
+Nova compute cpu model
+----------------------
+
+.. code-block:: yaml
+
+  nova:
+    compute:
+      cpu_mode: custom
+      libvirt:
+        cpu_model: IvyBridge
+
+
 Nova compute workarounds
 ------------------------
 
