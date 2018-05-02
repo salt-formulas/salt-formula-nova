@@ -189,8 +189,14 @@ virt_type = {{ compute.libvirt.virt_type }}
 {%-  else %}
 virt_type = kvm
 {%- endif%}
-inject_partition=-2
+
+inject_partition={{ compute.libvirt.inject_partition }}
+{%- if compute.libvirt.get('inject_partition', '-2')|string == '-2' %}
 inject_password=False
+{%- else %}
+inject_password={{ compute.libvirt.inject_password }}
+{%- endif %}
+
 disk_cachemodes="{{ compute.get('disk_cachemodes', 'network=writeback,block=none') }}"
 libvirt_inject_password=True
 block_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_NON_SHARED_INC

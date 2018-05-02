@@ -124,7 +124,9 @@ Debian:
   libvirt_service: libvirt-bin
   bind: compute_bind_defaults
   debug: false
-  libvirt: []
+  libvirt:
+    inject_partition: '-2'
+    inject_password: False
   instances_path: "$state_path/instances"
   notification: false
   availability_zone:
@@ -155,7 +157,9 @@ RedHat:
   libvirt_service: libvirtd
   bind: compute_bind_defaults
   debug: false
-  libvirt: []
+  libvirt:
+    inject_partition: '-2'
+    inject_password: False
   notification: false
   availability_zone:
   identity:
