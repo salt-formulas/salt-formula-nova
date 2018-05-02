@@ -753,6 +753,46 @@ Also it is possible to configure this with pillar:
             ossyslog:
               enabled: true
 
+Inject password to VM
+---------------------
+
+By default nova blocks up any inject to VM because 'inject_partition' param is equal '-2'
+If you want to inject password to VM, you will need to define 'inject_partition' greater or equal to '-1' and define 'inject_password' to 'True'
+
+For example:
+
+  nova:
+    compute:
+      inject_partition: '-1'
+      inject_password: True
+
+# Allow the injection of an admin password for instance only at ``create`` and
+# ``rebuild`` process.
+#
+# There is no agent needed within the image to do this. If *libguestfs* is
+# available on the host, it will be used. Otherwise *nbd* is used. The file
+# system of the image will be mounted and the admin password, which is provided
+# in the REST API call will be injected as password for the root user. If no
+# root user is available, the instance won't be launched and an error is thrown.
+# Be aware that the injection is *not* possible when the instance gets launched
+# from a volume.
+#
+# Possible values:
+#
+# * True: Allows the injection.
+# * False (default): Disallows the injection. Any via the REST API provided
+# admin password will be silently ignored.
+#
+# Related options:
+#
+# * ``inject_partition``: That option will decide about the discovery and usage
+#   of the file system. It also can disable the injection at all.
+#  (boolean value)
+
+You can read more about injecting the administrator password here:
+    https://docs.openstack.org/nova/queens/admin/admin-password-injection.html
+
+
 Documentation and Bugs
 ======================
 
