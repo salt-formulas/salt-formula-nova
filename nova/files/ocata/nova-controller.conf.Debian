@@ -537,6 +537,12 @@ injected_network_template=$pybasedir/nova/virt/interfaces.template
 # * Any valid positive integer or float value
 #  (floating point value)
 # Minimum value: 0
+{%- if controller.live_migration_permit_auto_converge is defined %}
+live_migration_permit_auto_converge = {{ controller.live_migration_permit_auto_converge }}
+{%- else  %}
+#live_migration_permit_auto_converge=false
+{%- endif %}
+
 #cpu_allocation_ratio=0.0
 cpu_allocation_ratio={{ controller.cpu_allocation_ratio }}
 
@@ -6345,6 +6351,7 @@ use_usb_tablet=true
 #     * live_migration_permit_post_copy
 #  (boolean value)
 #live_migration_permit_auto_converge=false
+live_migration_permit_auto_converge={{ controller.config.get('live_migration_permit_auto_converge', 'false') }}
 
 #
 # Determine the snapshot image format when sending to the image service.
