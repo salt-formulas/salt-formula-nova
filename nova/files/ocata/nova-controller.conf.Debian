@@ -1,4 +1,4 @@
-{%- from "nova/map.jinja" import controller with context %}
+{%- from "nova/map.jinja" import controller, system_cacerts_file with context %}
 [DEFAULT]
 
 #
@@ -181,9 +181,7 @@ allow_resize_to_same_host=true
 # * Any string representing an availability zone name
 # * Default value is None.
 #  (string value)
-{%- if controller.default_schedule_zone is defined %}
-default_schedule_zone = {{ controller.default_schedule_zone }}
-{%- endif %}
+#default_schedule_zone=<None>
 
 #
 # Image properties that should not be inherited from the instance
@@ -537,6 +535,15 @@ injected_network_template=$pybasedir/nova/virt/interfaces.template
 # * Any valid positive integer or float value
 #  (floating point value)
 # Minimum value: 0
+#live_migration_permit_auto_converge=false
+#live_migration_permit_auto_converge={{ compute.live_migration_permit_auto_converge }}
+{%- if controller.live_migration_permit_auto_converge is defined %}
+live_migration_permit_auto_converge = {{ controller.live_migration_permit_auto_converge }}
+{%- else  %}
+#live_migration_permit_auto_converge=false
+{%- endif %}
+
+
 #cpu_allocation_ratio=0.0
 cpu_allocation_ratio={{ controller.cpu_allocation_ratio }}
 
@@ -1511,9 +1518,6 @@ my_ip={{ controller.bind.private_address }}
 # * String with hostname, FQDN or IP address. Default is hostname of this host.
 #  (string value)
 #host=lcy01-22
-{%- if controller.host is defined %}
-host={{ controller.host }}
-{%- endif %}
 
 #
 # Assign IPv6 and IPv4 addresses when creating instances.
@@ -2695,7 +2699,7 @@ osapi_compute_workers = {{ controller.workers }}
 # requests.
 #  (string value)
 #metadata_listen=0.0.0.0
-metadata_listen={{ controller.get('metadata', {}).get('bind', {}).get('address', controller.bind.private_address) }}
+metadata_listen={{ controller.bind.private_address }}
 osapi_volume_listen={{ controller.bind.private_address }}
 
 #
@@ -2706,11 +2710,7 @@ osapi_volume_listen={{ controller.bind.private_address }}
 #  (port value)
 # Minimum value: 0
 # Maximum value: 65535
-{%- if controller.get('metadata', {}).get('bind', {}).port is defined %}
-metadata_listen_port={{ controller.metadata.bind.port }}
-{%- else %}
 #metadata_listen_port=8775
-{%- endif %}
 
 #
 # Number of workers for metadata service. If not specified the number of
@@ -2784,9 +2784,6 @@ verbose=true
 # Note: This option can be changed without restarting.
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append=<None>
-{%- if controller.logging.log_appender %}
-log_config_append=/etc/nova/logging.conf
-{%- endif %}
 
 # Defines the format string for %%(asctime)s in log records. Default:
 # %(default)s . This option is ignored if log_config_append is set. (string
@@ -3428,7 +3425,7 @@ db_max_retries = 3
 db_retry_interval = 1
 connection_debug = 10
 pool_timeout = 120
-connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}_api?charset=utf8{%- if controller.database.get('ssl',{}).get('enabled',False) %}&ssl_ca={{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}{% endif %}
+connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}_api?charset=utf8{%- if controller.database.get('ssl',{}).get('enabled',False) %}&ssl_ca={{ controller.database.ssl.get('cacert_file', system_cacerts_file) }}{% endif %}
 
 # The SQLAlchemy connection string to use to connect to the database. (string
 # value)
@@ -3489,12 +3486,7 @@ connection = {{ controller.database.engine }}+pymysql://{{ controller.database.u
 #barbican_api_version=<None>
 
 # Use this endpoint to connect to Keystone (string value)
-{%- if controller.get('barbican', {}).get('enabled', False) %}
-auth_endpoint={{ controller.identity.get('protocol', 'http') }}://{{ controller.identity.get('host', 'localhost') }}:{{ controller.identity.get('port', '5000') }}/v3
-{%- if controller.identity.get('protocol', 'http') == 'https' %}
-cafile={{ controller.identity.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
-{%- endif %}
+#auth_endpoint=http://localhost:5000/v3
 
 # Number of seconds to wait before retrying poll for key creation completion
 # (integer value)
@@ -4065,9 +4057,7 @@ enable=False
 #  (string value)
 #catalog_info=volumev2:cinderv2:publicURL
 catalog_info=volumev2:cinderv2:internalURL
-{%- if controller.glance.get('protocol', 'http') == 'https' %}
-cafile={{ controller.identity.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
+
 #
 # If this option is set then it will override service catalog lookup with
 # this template for cinder endpoint
@@ -4477,7 +4467,7 @@ db_max_retries = 3
 db_retry_interval = 1
 connection_debug = 10
 pool_timeout = 120
-connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}?charset=utf8{%- if controller.database.get('ssl',{}).get('enabled',False) %}&ssl_ca={{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}{% endif %}
+connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}?charset=utf8{%- if controller.database.get('ssl',{}).get('enabled',False) %}&ssl_ca={{ controller.database.ssl.get('cacert_file', system_cacerts_file) }}{% endif %}
 
 # If True, SQLite uses synchronous mode. (boolean value)
 # Deprecated group/name - [DEFAULT]/sqlite_synchronous
@@ -5060,7 +5050,7 @@ use_baremetal_filters=false
 #   (i.e. "http://10.0.1.0:9292" or "https://my.glance.server/image").
 #  (list value)
 #api_servers=<None>
-api_servers = {{ controller.glance.get('protocol', 'http') }}://{{ controller.glance.host }}:{{ controller.glance.get('port', 9292) }}
+api_servers = {{ controller.glance.host }}:9292
 
 #
 # Enable insecure SSL (https) requests to glance.
@@ -5109,11 +5099,7 @@ api_servers = {{ controller.glance.get('protocol', 'http') }}://{{ controller.gl
 # * The options in the `key_manager` group, as the key_manager is used
 #   for the signature validation.
 #  (boolean value)
-{%- if controller.get('barbican', {}).get('enabled', False) %}
-verify_glance_signatures=true
-{%- else %}
 #verify_glance_signatures=false
-{%- endif %}
 
 # Enable or disable debug logging with glanceclient. (boolean value)
 #debug=false
@@ -5641,9 +5627,7 @@ verify_glance_signatures=true
 #fixed_key=<None>
 
 # The full class name of the key manager API class (string value)
-{%- if controller.get('barbican', {}).get('enabled', False) %}
-api_class=castellan.key_manager.barbican_key_manager.BarbicanKeyManager
-{%- endif %}
+#api_class=castellan.key_manager.barbican_key_manager.BarbicanKeyManager
 
 # The type of authentication credential to create. Possible values are 'token',
 # 'password', 'keystone_token', and 'keystone_password'. Required if no context
@@ -5720,11 +5704,8 @@ project_domain_id = {{ controller.identity.get('domain', 'default') }}
 project_name = {{ controller.identity.tenant }}
 username = {{ controller.identity.user }}
 password = {{ controller.identity.password }}
-auth_uri={{ controller.identity.get('protocol', 'http') }}://{{ controller.identity.host }}:5000
-auth_url={{ controller.identity.get('protocol', 'http') }}://{{ controller.identity.host }}:35357
-{%- if controller.identity.get('protocol', 'http') == 'https' %}
-cafile={{ controller.identity.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
+auth_uri=http://{{ controller.identity.host }}:5000
+auth_url=http://{{ controller.identity.host }}:35357
 {%- if controller.cache is defined %}
 memcached_servers={%- for member in controller.cache.members %}{{ member.host }}:11211{% if not loop.last %},{% endif %}{%- endfor %}
 {%- endif %}
@@ -6345,6 +6326,7 @@ use_usb_tablet=true
 #     * live_migration_permit_post_copy
 #  (boolean value)
 #live_migration_permit_auto_converge=false
+live_migration_permit_auto_converge={{ controller.config.get('live_migration_permit_auto_converge', 'false') }}
 
 #
 # Determine the snapshot image format when sending to the image service.
@@ -7102,7 +7084,7 @@ use_virtio_for_bridges=true
 auth_type=v3password
 project_domain_name = Default
 user_domain_name = Default
-auth_url = {{ controller.identity.get('protocol', 'http') }}://{{ controller.identity.host }}:35357/v3
+auth_url = http://{{ controller.identity.host }}:35357/v3
 {% if pillar.neutron is defined and pillar.neutron.server is defined %}
 password={{ pillar.neutron.server.identity.password }}
 project_name={{ pillar.neutron.server.identity.tenant }}
@@ -7114,10 +7096,8 @@ project_name={{ controller.network.tenant }}
 username={{ controller.network.user }}
 region_name= {{ controller.network.region }}
 {%- endif %}
-url={{ controller.network.get('protocol', 'http') }}://{{ controller.network.host }}:{{ controller.network.port }}
-{%- if controller.network.get('protocol', 'http') == 'https' %}
-cafile={{ controller.network.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
+url=http://{{ controller.network.host }}:{{ controller.network.port }}
+
 {%- if controller.get('networking', 'default') != "contrail" %}
 metadata_proxy_shared_secret={{ controller.metadata.password }}
 {%- endif %}
@@ -7974,7 +7954,11 @@ kombu_ssl_version = {{ controller.message_queue.ssl.version }}
 kombu_ssl_version = TLSv1_2
 {%- endif %}
 
-kombu_ssl_ca_certs = {{ controller.message_queue.ssl.get('cacert_file', controller.cacert_file) }}
+{%- if controller.message_queue.ssl.cacert_file is defined %}
+kombu_ssl_ca_certs = {{ controller.message_queue.ssl.cacert_file }}
+{%- else %}
+kombu_ssl_ca_certs = {{ system_cacerts_file }}
+{%- endif %}
 {%- endif %}
 
 [oslo_messaging_zmq]
@@ -8306,10 +8290,7 @@ project_domain_id = {{ controller.identity.get('domain', 'default') }}
 project_name = {{ controller.identity.tenant }}
 username = {{ controller.identity.user }}
 password = {{ controller.identity.password }}
-auth_url={{ controller.identity.get('protocol', 'http') }}://{{ controller.identity.host }}:35357/v3
-{%- if controller.identity.get('protocol', 'http') == 'https' %}
-cafile={{ controller.identity.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
+auth_url=http://{{ controller.identity.host }}:35357/v3
 os_interface = internal
 
 #
@@ -9240,9 +9221,7 @@ html5proxy_base_url = {{ controller.vncproxy_url }}/spice_auto.html
 
 # CA certificate file to use to verify connecting clients. (string value)
 # Deprecated group/name - [DEFAULT]/ssl_ca_file
-{%- if controller.identity.get('protocol', 'http') == 'https' %}
-ca_file={{ controller.glance.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
+#ca_file=<None>
 
 # Certificate file to use when starting the server securely. (string value)
 # Deprecated group/name - [DEFAULT]/ssl_cert_file
