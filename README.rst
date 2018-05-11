@@ -753,6 +753,25 @@ Also it is possible to configure this with pillar:
             ossyslog:
               enabled: true
 
+The log level might be configured per logger by using the
+following pillar structure:
+
+.. code-block:: yaml
+
+  nova:
+    compute:
+      logging:
+        loggers:
+          <logger_name>:
+            level: WARNING
+
+  nova:
+    compute:
+      logging:
+        loggers:
+          <logger_name>:
+            level: WARNING
+
 Inject password to VM
 ---------------------
 
