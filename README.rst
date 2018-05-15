@@ -714,6 +714,26 @@ To configure this option:
     compute:
       max_concurrent_live_migrations: 1  # (1 is the default)
 
+Live migration with auto converge
+----------------------------------
+
+Auto converge throttles down CPU if a progress of on-going live migration is slow.
+https://docs.openstack.org/ocata/config-reference/compute/config-options.html
+
+.. code-block:: yaml
+
+  nova:
+    compute:
+      libvirt:
+        live_migration_permit_auto_converge: False  # (False is the default)
+
+.. code-block:: yaml
+
+  nova:
+    controller:
+      libvirt:
+        live_migration_permit_auto_converge: False  # (False is the default)
+
 Enhanced logging with logging.conf
 ----------------------------------
 

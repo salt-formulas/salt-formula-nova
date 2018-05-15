@@ -6345,6 +6345,9 @@ use_usb_tablet=true
 #     * live_migration_permit_post_copy
 #  (boolean value)
 #live_migration_permit_auto_converge=false
+{%- if controller.get('libvirt', {}).live_migration_permit_auto_converge is defined %}
+live_migration_permit_auto_converge={{ controller.libvirt.live_migration_permit_auto_converge|lower }}
+{%- endif %}
 
 #
 # Determine the snapshot image format when sending to the image service.
