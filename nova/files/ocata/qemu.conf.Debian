@@ -497,3 +497,21 @@ cgroup_device_acl = [
     "/dev/vfio/vfio",
     {% endif %}
 ]
+
+# The backend to use for handling stdout/stderr output from
+# QEMU processes.
+#
+#  'file': QEMU writes directly to a plain file. This is the
+#          historical default, but allows QEMU to inflict a
+#          denial of service attack on the host by exhausting
+#          filesystem space
+#
+#  'logd': QEMU writes to a pipe provided by virtlogd daemon.
+#          This is the current default, providing protection
+#          against denial of service by performing log file
+#          rollover when a size limit is hit.
+#
+#stdio_handler = "logd"
+{%- if compute.get('qemu',{}).get('logging',{}).handler is defined %}
+stdio_handler = "{{ compute.qemu.logging.handler }}"
+{%- endif %}

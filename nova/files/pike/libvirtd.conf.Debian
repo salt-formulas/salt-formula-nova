@@ -295,7 +295,9 @@ auth_unix_rw = "none"
 # Logging level: 4 errors, 3 warnings, 2 information, 1 debug
 # basically 1 will log everything possible
 #log_level = 3
-
+{%- if compute.libvirt.get('logging',{}).level is defined %}
+log_level = {{ compute.libvirt.logging.level }}
+{%- endif %}
 # Logging filters:
 # A filter allows to select a different logging level for a given category
 # of logs
@@ -317,6 +319,9 @@ auth_unix_rw = "none"
 # e.g. to only get warning or errors from the remote layer and only errors
 # from the event layer:
 #log_filters="3:remote 4:event"
+{%- if compute.libvirt.get('logging',{}).filters is defined %}
+log_filters={{ compute.libvirt.logging.filters|yaml_dquote }}
+{%- endif %}
 
 # Logging outputs:
 # An output is one of the places to save logging information
@@ -337,6 +342,9 @@ auth_unix_rw = "none"
 # e.g. to log all warnings and errors to syslog under the libvirtd ident:
 #log_outputs="3:syslog:libvirtd"
 #
+{%- if compute.libvirt.get('logging',{}).outputs is defined %}
+log_outputs={{ compute.libvirt.logging.outputs|yaml_dquote }}
+{%- endif %}
 
 # Log debug buffer size: default 64
 # The daemon keeps an internal debug log buffer which will be dumped in case
@@ -344,7 +352,9 @@ auth_unix_rw = "none"
 # the default buffer size in kilobytes.
 # If value is 0 or less the debug log buffer is deactivated
 #log_buffer_size = 64
-
+{%- if compute.libvirt.get('logging',{}).buffer_size is defined %}
+log_buffer_size = {{ compute.libvirt.logging.buffer_size }}
+{%- endif %}
 
 ##################################################################
 #

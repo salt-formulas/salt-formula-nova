@@ -338,6 +338,26 @@ nova_libvirt_restart_systemd:
   - require:
     - pkg: nova_compute_packages
 
+{%- if compute.get('virtlog',{}).get('enabled', false) %}
+
+/etc/libvirt/virtlogd.conf:
+  file.managed:
+  - source: salt://nova/files/{{ compute.version }}/virtlogd.conf.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: nova_compute_packages
+
+/usr/sbin/virtlogd:
+  service.running:
+  - name: virtlogd
+  - enable: true
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+  - watch:
+    - file: /etc/libvirt/virtlogd.conf
+{%- endif %}
+
 virsh net-undefine default:
   cmd.run:
   - name: "virsh net-destroy default"
