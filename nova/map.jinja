@@ -197,5 +197,6 @@ RedHat:
         'ram_critical_threshold': 0.95,
         'disk_major_threshold': 0.85,
         'disk_critical_threshold': 0.95,
+        'endpoint_failed_major_threshold': 0.5,
     },
 }, grain='os_family', merge=salt['pillar.get']('nova:monitoring')) %}
