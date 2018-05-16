@@ -79,7 +79,7 @@ server:
 {%- endraw %}
     NovaServicesDownMinor:
       if: >-
-        count(openstack_nova_service_state{binary!~"nova-compute"} == 0) by (binary) >= on (binary) count(openstack_nova_service_state{binary!~"nova-compute"}) by (binary) * {{minor_threshold}} and count(openstack_nova_service_state{binary!~"nova-compute"} == 0) by (binary) < on (binary) count(openstack_nova_service_state{binary!~"nova-compute"}) by (binary) * {{major_threshold}}
+        count(openstack_nova_service_state{binary!~"nova-compute"} == 0) by (binary) >= on (binary) count(openstack_nova_service_state{binary!~"nova-compute"}) by (binary) * {{minor_threshold}}
       labels:
         severity: minor
         service: nova
@@ -89,7 +89,7 @@ server:
           {{ $value }} {{ $labels.binary }} services are down {%- endraw %}(at least {{minor_threshold * 100}}%).
     NovaComputeServicesDownMinor:
       if: >-
-        count(openstack_nova_service_state{binary="nova-compute"} == 0) >= count(openstack_nova_service_state{binary="nova-compute"}) * {{minor_compute_threshold}} and count(openstack_nova_service_state{binary="nova-compute"} == 0) < count(openstack_nova_service_state{binary="nova-compute"}) * {{major_compute_threshold}}
+        count(openstack_nova_service_state{binary="nova-compute"} == 0) >= count(openstack_nova_service_state{binary="nova-compute"}) * {{minor_compute_threshold}}
       labels:
         severity: minor
         service: nova
@@ -127,99 +127,375 @@ server:
         summary: "{{ $labels.binary }} service outage"
         description: >-
           All {{ $labels.binary }} services are down.
-    NovaTotalFreeVCPUsLow:
+{%- endraw -%}
+
+{%- set cpu_ratio = controller.get('cpu_allocation_ratio', 16.0) %}
+{%- set ram_ratio = controller.get('ram_allocation_ratio', 1.5) %}
+{%- set disk_ratio = controller.get('disk_allocation_ratio', 1.0) -%}
+
+{%- set alloc_cpu_minor_threshold = monitoring.allocated_vcpus_minor_threshold|float %}
+{%- set alloc_cpu_major_threshold = monitoring.allocated_vcpus_major_threshold|float %}
+{%- set alloc_ram_minor_threshold = monitoring.allocated_ram_minor_threshold|float %}
+{%- set alloc_ram_major_threshold = monitoring.allocated_ram_major_threshold|float %}
+{%- set alloc_disk_minor_threshold = monitoring.allocated_disk_minor_threshold|float %}
+{%- set alloc_disk_major_threshold = monitoring.allocated_disk_major_threshold|float -%}
+
+{%- set ram_major_threshold = monitoring.ram_major_threshold|float %}
+{%- set ram_critical_threshold = monitoring.ram_critical_threshold|float %}
+{%- set disk_major_threshold = monitoring.disk_major_threshold|float %}
+{%- set disk_critical_threshold = monitoring.disk_critical_threshold|float -%}
+
+    NovaHypervisorAllocatedVCPUsFullMinor:
       if: >-
-        (100.0 * openstack_nova_total_free_vcpus) / (openstack_nova_total_free_vcpus + openstack_nova_total_used_vcpus) < 10.0
-      for: 1m
+        openstack_nova_used_vcpus >= openstack_nova_vcpus * {{ cpu_ratio }} * {{ alloc_cpu_minor_threshold }}
       labels:
-        severity: warning
+        severity: minor
         service: nova
       annotations:
-        summary: "VCPU low limit for new instances"
-        description: >-
-            VPCU low limit for 1 minutes
-    NovaTotalFreeMemoryLow:
+        summary: "{{ alloc_cpu_minor_threshold * 100 }}% of hypervisor VCPUs were allocated"
+        description: "{% raw %}{{ $value }} VCPUs on the {{ $labels.hostname }}{% endraw %} node were allocated (at least {{ alloc_cpu_minor_threshold * 100 }}%)."
+    NovaHypervisorAllocatedVCPUsFullMajor:
       if: >-
-        (100.0 * openstack_nova_total_free_ram) / (openstack_nova_total_free_ram + openstack_nova_total_used_ram) < 10.0
-      for: 1m
+        openstack_nova_used_vcpus >= openstack_nova_vcpus * {{ cpu_ratio }} * {{ alloc_cpu_major_threshold }}
       labels:
-        severity: warning
+        severity: major
         service: nova
       annotations:
-        summary: "Memory low limit for new instances"
-        description: >-
-            Memory low limit for 1 minutes
-    NovaTotalFreeVCPUsShortage:
+        summary: "{{ alloc_cpu_major_threshold * 100 }}% of hypervisor VCPUs were allocated"
+        description: "{% raw %}{{ $value }} VCPUs on the {{ $labels.hostname }}{% endraw %} node were allocated (at least {{ alloc_cpu_major_threshold * 100 }}%)."
+    NovaHypervisorAllocatedVCPUsFullCritical:
       if: >-
-        (100.0 * openstack_nova_total_free_vcpus) / (openstack_nova_total_free_vcpus + openstack_nova_total_used_vcpus) < 2.0
-      for: 1m
+        openstack_nova_used_vcpus >= openstack_nova_vcpus * {{ cpu_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No VCPUs available for allocation"
+        description: "All available VCPUs on the {% raw %}{{ $labels.hostname }}{% endraw %} node were allocated."
+    NovaHypervisorAllocatedMemoryFullMinor:
+      if: >-
+        openstack_nova_ram - openstack_nova_free_ram >= openstack_nova_ram * {{ ram_ratio }} * {{ alloc_ram_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_ram_minor_threshold * 100 }}% of hypervisor RAM was allocated"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.hostname }}{% endraw %} node was allocated (at least {{ alloc_ram_minor_threshold * 100 }}%)."
+    NovaHypervisorAllocatedMemoryFullMajor:
+      if: >-
+        openstack_nova_ram - openstack_nova_free_ram >= openstack_nova_ram * {{ ram_ratio }} * {{ alloc_ram_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_ram_major_threshold * 100 }}% of hypervisor RAM was allocated"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.hostname }}{% endraw %} node was allocated (at least {{ alloc_ram_major_threshold * 100 }}%)."
+    NovaHypervisorAllocatedMemoryFullCritical:
+      if: >-
+        openstack_nova_ram - openstack_nova_free_ram >= openstack_nova_ram * {{ ram_ratio }}
       labels:
         severity: critical
         service: nova
       annotations:
-        summary: "VCPU shortage for new instances"
-        description: >-
-            VPCU shortage for 1 minutes
-    NovaTotalFreeMemoryShortage:
+        summary: "No RAM available for allocation"
+        description: "All available RAM on the {% raw %}{{ $labels.hostname }}{% endraw %} node was allocated."
+    NovaHypervisorMemoryFullMajor:
       if: >-
-        (100.0 * openstack_nova_total_free_ram) / (openstack_nova_total_free_ram + openstack_nova_total_used_ram) < 2.0
-      for: 1m
+        openstack_nova_used_ram >= openstack_nova_ram * {{ ram_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ ram_major_threshold * 100 }}% of hypervisor RAM was used"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.hostname }}{% endraw %} node was used (at least {{ ram_major_threshold * 100 }}%)."
+    NovaHypervisorMemoryFullCritical:
+      if: >-
+        openstack_nova_used_ram >= openstack_nova_ram * {{ ram_critical_threshold }}
       labels:
         severity: critical
         service: nova
       annotations:
-        summary: "Memory shortage for new instances"
-        description: >-
-            Memory shortage for 1 minutes
-    NovaAggregatesFreeVCPUsLow:
+        summary: "{{ ram_critical_threshold * 100 }}% of hypervisor RAM was used"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.hostname }}{% endraw %} node was used (at least {{ ram_critical_threshold * 100 }}%)."
+    NovaHypervisorAllocatedDiskFullMinor:
       if: >-
-        (100.0 * openstack_nova_aggregate_free_vcpus) / (openstack_nova_aggregate_free_vcpus + openstack_nova_aggregate_used_vcpus) < 10.0
-      for: 1m
+        openstack_nova_disk - openstack_nova_free_disk >= openstack_nova_disk * {{ disk_ratio }} * {{ alloc_disk_minor_threshold }}
       labels:
-        severity: warning
+        severity: minor
         service: nova
-        aggregate: "{{ $labels.aggregate }}"
       annotations:
-        summary: "VCPU low limit for new instances on aggregate {{ $labels.aggregate }}"
-        description: >-
-            VPCU low limit for 1 minutes on aggregate {{ $labels.aggregate }}
-    NovaAggregatesFreeMemoryLow:
+        summary: "{{ alloc_disk_minor_threshold * 100 }}% of hypervisor disk space was allocated"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.hostname }}{% endraw %} node was allocated (at least {{ alloc_disk_minor_threshold * 100 }}%)."
+    NovaHypervisorAllocatedDiskFullMajor:
       if: >-
-        (100.0 * openstack_nova_aggregate_free_ram) / (openstack_nova_aggregate_free_ram + openstack_nova_aggregate_used_ram) < 10.0
-      for: 1m
+        openstack_nova_disk - openstack_nova_free_disk >= openstack_nova_disk * {{ disk_ratio }} * {{ alloc_disk_major_threshold }}
       labels:
-        severity: warning
+        severity: major
         service: nova
-        aggregate: "{{ $labels.aggregate }}"
       annotations:
-        summary: "Memory low limit for new instances on aggregate {{ $labels.aggregate }}"
-        description: >-
-            Memory low limit for 1 minutes on aggregate {{ $labels.aggregate }}
-    NovaAggregatesFreeVCPUsShortage:
+        summary: "{{ alloc_disk_major_threshold * 100 }}% of hypervisor disk space was allocated"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.hostname }}{% endraw %} node was allocated (at least {{ alloc_disk_major_threshold * 100 }}%)."
+    NovaHypervisorAllocatedDiskFullCritical:
       if: >-
-        (100.0 * openstack_nova_aggregate_free_vcpus) / (openstack_nova_aggregate_free_vcpus + openstack_nova_aggregate_used_vcpus) < 2.0
-      for: 1m
+        openstack_nova_disk - openstack_nova_free_disk >= openstack_nova_disk * {{ disk_ratio }}
       labels:
         severity: critical
         service: nova
-        aggregate: "{{ $labels.aggregate }}"
       annotations:
-        summary: "VCPU shortage for new instances on aggregate {{ $labels.aggregate }}"
-        description: >-
-            VPCU shortage for 1 minutes on aggregate {{ $labels.aggregate }}
-    NovaAggregatesFreeMemoryShortage:
+        summary: "No disk space available for allocation"
+        description: "All available disk space on the {% raw %}{{ $labels.hostname }}{% endraw %} node was allocated."
+    NovaHypervisorDiskFullMajor:
       if: >-
-        (100.0 * openstack_nova_aggregate_free_ram) / (openstack_nova_aggregate_free_ram + openstack_nova_aggregate_used_ram) < 2.0
-      for: 1m
+        openstack_nova_used_disk >= openstack_nova_disk * {{ disk_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ disk_major_threshold * 100 }}% of hypervisor disk space was used"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.hostname }}{% endraw %} node was used (at least {{ disk_major_threshold * 100 }}%)."
+    NovaHypervisorDiskFullCritical:
+      if: >-
+        openstack_nova_used_disk >= openstack_nova_disk * {{ disk_critical_threshold }}
       labels:
         severity: critical
         service: nova
-        aggregate: "{{ $labels.aggregate }}"
       annotations:
-        summary: "Memory shortage for new instances on aggregate {{ $labels.aggregate }}"
-        description: >-
-            Memory shortage for 1 minutes on aggregate {{ $labels.aggregate }}
-{%- endraw %}
+        summary: "{{ disk_critical_threshold * 100 }}% of hypervisor disk space was used"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.hostname }}{% endraw %} node was used (at least {{ disk_critical_threshold * 100 }}%)."
+    NovaAggregateAllocatedVCPUsFullMinor:
+      if: >-
+        openstack_nova_aggregate_used_vcpus >= openstack_nova_aggregate_vcpus * {{ cpu_ratio }} * {{ alloc_cpu_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_cpu_minor_threshold * 100 }}% of aggregate VCPUs were allocated"
+        description: "{% raw %}{{ $value }} VCPUs on the {{ $labels.aggregate }}{% endraw %} aggregate were allocated (at least {{ alloc_cpu_minor_threshold * 100 }}%)."
+    NovaAggregateAllocatedVCPUsFullMajor:
+      if: >-
+        openstack_nova_aggregate_used_vcpus >= openstack_nova_aggregate_vcpus * {{ cpu_ratio }} * {{ alloc_cpu_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_cpu_major_threshold * 100 }}% of aggregate VCPUs were allocated"
+        description: "{% raw %}{{ $value }} VCPUs on the {{ $labels.aggregate }}{% endraw %} aggregate were allocated (at least {{ alloc_cpu_major_threshold * 100 }}%)."
+    NovaAggregateAllocatedVCPUsFullCritical:
+      if: >-
+        openstack_nova_aggregate_used_vcpus >= openstack_nova_aggregate_vcpus * {{ cpu_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No VCPUs available for allocation"
+        description: "All available VCPUs on the {% raw %}{{ $labels.aggregate }}{% endraw %} aggregate were allocated."
+    NovaAggregateAllocatedMemoryFullMinor:
+      if: >-
+        openstack_nova_aggregate_ram - openstack_nova_aggregate_free_ram >= openstack_nova_aggregate_ram * {{ ram_ratio }} * {{ alloc_ram_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_ram_minor_threshold * 100 }}% of aggregate RAM was allocated"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.aggregate }}{% endraw %} aggregate was allocated (at least {{ alloc_ram_minor_threshold * 100 }}%)."
+    NovaAggregateAllocatedMemoryFullMajor:
+      if: >-
+        openstack_nova_aggregate_ram - openstack_nova_aggregate_free_ram >= openstack_nova_aggregate_ram * {{ ram_ratio }} * {{ alloc_ram_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_ram_major_threshold * 100 }}% of aggregate RAM was allocated"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.aggregate }}{% endraw %} aggregate was allocated (at least {{ alloc_ram_major_threshold * 100 }}%)."
+    NovaAggregateAllocatedMemoryFullCritical:
+      if: >-
+        openstack_nova_aggregate_ram - openstack_nova_aggregate_free_ram >= openstack_nova_aggregate_ram * {{ ram_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No RAM available for allocation"
+        description: "All available RAM on the {% raw %}{{ $labels.aggregate }}{% endraw %} aggregate was allocated."
+    NovaAggregateMemoryFullMajor:
+      if: >-
+        openstack_nova_aggregate_used_ram >= openstack_nova_aggregate_ram * {{ ram_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ ram_major_threshold * 100 }}% of aggregate RAM was used"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.aggregate }}{% endraw %} aggregate was used (at least {{ ram_major_threshold * 100 }}%)."
+    NovaAggregateMemoryFullCritical:
+      if: >-
+        openstack_nova_aggregate_used_ram >= openstack_nova_aggregate_ram * {{ ram_critical_threshold }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "{{ ram_critical_threshold * 100 }}% of aggregate RAM was used"
+        description: "{% raw %}{{ $value }}MB of RAM on the {{ $labels.aggregate }}{% endraw %} aggregate was used (at least {{ ram_critical_threshold * 100 }}%)."
+    NovaAggregateAllocatedDiskFullMinor:
+      if: >-
+        openstack_nova_aggregate_disk - openstack_nova_aggregate_free_disk >= openstack_nova_aggregate_disk * {{ disk_ratio }} * {{ alloc_disk_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_disk_minor_threshold * 100 }}% of aggregate disk space was allocated"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.aggregate }}{% endraw %} aggregate was allocated (at least {{ alloc_disk_minor_threshold * 100 }}%)."
+    NovaAggregateAllocatedDiskFullMajor:
+      if: >-
+        openstack_nova_aggregate_disk - openstack_nova_aggregate_free_disk >= openstack_nova_aggregate_disk * {{ disk_ratio }} * {{ alloc_disk_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_disk_major_threshold * 100 }}% of aggregate disk space was allocated"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.aggregate }}{% endraw %} aggregate was allocated (at least {{ alloc_disk_major_threshold * 100 }}%)."
+    NovaAggregateAllocatedDiskFullCritical:
+      if: >-
+        openstack_nova_aggregate_disk - openstack_nova_aggregate_free_disk >= openstack_nova_aggregate_disk * {{ disk_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No disk space available for allocation"
+        description: "All available disk space on the {% raw %}{{ $labels.aggregate }}{% endraw %} aggregate was allocated."
+    NovaAggregateDiskFullMajor:
+      if: >-
+        openstack_nova_aggregate_used_disk >= openstack_nova_aggregate_disk * {{ disk_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ disk_major_threshold * 100 }}% of aggregate disk space was used"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.aggregate }}{% endraw %} aggregate was used (at least {{ disk_major_threshold * 100 }}%)."
+    NovaAggregateDiskFullCritical:
+      if: >-
+        openstack_nova_aggregate_used_disk >= openstack_nova_aggregate_disk * {{ disk_critical_threshold }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "{{ disk_critical_threshold * 100 }}% of aggregate disk space was used"
+        description: "{% raw %}{{ $value }}GB of disk space on the {{ $labels.aggregate }}{% endraw %} aggregate was used (at least {{ disk_critical_threshold * 100 }}%)."
+    NovaTotalAllocatedVCPUsFullMinor:
+      if: >-
+        openstack_nova_total_used_vcpus >= openstack_nova_total_vcpus * {{ cpu_ratio }} * {{ alloc_cpu_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_cpu_minor_threshold * 100 }}% of cloud VCPUs were allocated"
+        description: "{% raw %}{{ $value }}{% endraw %} VCPUs in the cloud were allocated (at least {{ alloc_cpu_minor_threshold * 100 }}%)."
+    NovaTotalAllocatedVCPUsFullMajor:
+      if: >-
+        openstack_nova_total_used_vcpus >= openstack_nova_total_vcpus * {{ cpu_ratio }} * {{ alloc_cpu_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_cpu_major_threshold * 100 }}% of cloud VCPUs were allocated"
+        description: "{% raw %}{{ $value }}{% endraw %} VCPUs in the cloud were allocated (at least {{ alloc_cpu_major_threshold * 100 }}%)."
+    NovaTotalAllocatedVCPUsFullCritical:
+      if: >-
+        openstack_nova_total_used_vcpus >= openstack_nova_total_vcpus * {{ cpu_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No VCPUs available for allocation"
+        description: "All available VCPUs in the cloud were allocated."
+    NovaTotalAllocatedMemoryFullMinor:
+      if: >-
+        openstack_nova_total_ram - openstack_nova_total_free_ram >= openstack_nova_total_ram * {{ ram_ratio }} * {{ alloc_ram_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_ram_minor_threshold * 100 }}% of cloud RAM was allocated"
+        description: "{% raw %}{{ $value }}MB{% endraw %} of RAM in the cloud was allocated (at least {{ alloc_ram_minor_threshold * 100 }}%)."
+    NovaTotalAllocatedMemoryFullMajor:
+      if: >-
+        openstack_nova_total_ram - openstack_nova_total_free_ram >= openstack_nova_total_ram * {{ ram_ratio }} * {{ alloc_ram_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_ram_major_threshold * 100 }}% of cloud RAM was allocated"
+        description: "{% raw %}{{ $value }}MB{% endraw %} of RAM in the cloud was allocated (at least {{ alloc_ram_major_threshold * 100 }}%)."
+    NovaTotalAllocatedMemoryFullCritical:
+      if: >-
+        openstack_nova_total_ram - openstack_nova_total_free_ram >= openstack_nova_total_ram * {{ ram_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No RAM available for allocation"
+        description: "All available RAM in the cloud was allocated."
+    NovaTotalMemoryFullMajor:
+      if: >-
+        openstack_nova_total_used_ram >= openstack_nova_total_ram * {{ ram_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ ram_major_threshold * 100 }}% of cloud RAM was used"
+        description: "{% raw %}{{ $value }}MB{% endraw %} of RAM in the cloud was used (at least {{ ram_major_threshold * 100 }}%)."
+    NovaTotalMemoryFullCritical:
+      if: >-
+        openstack_nova_total_used_ram >= openstack_nova_total_ram * {{ ram_critical_threshold }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "{{ ram_critical_threshold * 100 }}% of cloud RAM was used"
+        description: "{% raw %}{{ $value }}MB{% endraw %} of RAM in the cloud was used (at least {{ ram_critical_threshold * 100 }}%)."
+    NovaTotalAllocatedDiskFullMinor:
+      if: >-
+        openstack_nova_total_disk - openstack_nova_total_free_disk >= openstack_nova_total_disk * {{ disk_ratio }} * {{ alloc_disk_minor_threshold }}
+      labels:
+        severity: minor
+        service: nova
+      annotations:
+        summary: "{{ alloc_disk_minor_threshold * 100 }}% of cloud disk space was allocated"
+        description: "{% raw %}{{ $value }}GB{% endraw %} of disk space in the cloud was allocated (at least {{ alloc_disk_minor_threshold * 100 }}%)."
+    NovaTotalAllocatedDiskFullMajor:
+      if: >-
+        openstack_nova_total_disk - openstack_nova_total_free_disk >= openstack_nova_total_disk * {{ disk_ratio }} * {{ alloc_disk_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ alloc_disk_major_threshold * 100 }}% of cloud disk space was allocated"
+        description: "{% raw %}{{ $value }}GB{% endraw %} of disk space in the cloud was allocated (at least {{ alloc_disk_major_threshold * 100 }}%)."
+    NovaTotalAllocatedDiskFullCritical:
+      if: >-
+        openstack_nova_total_disk - openstack_nova_total_free_disk >= openstack_nova_total_disk * {{ disk_ratio }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "No disk space available for allocation"
+        description: "All available disk space in the cloud was allocated."
+    NovaTotalDiskFullMajor:
+      if: >-
+        openstack_nova_total_used_disk >= openstack_nova_total_disk * {{ disk_major_threshold }}
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{ disk_major_threshold * 100 }}% of cloud disk space was used"
+        description: "{% raw %}{{ $value }}GB{% endraw %} of disk space in the cloud was used (at least {{ disk_major_threshold * 100 }}%)."
+    NovaTotalDiskFullCritical:
+      if: >-
+        openstack_nova_total_used_disk >= openstack_nova_total_disk * {{ disk_critical_threshold }}
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "{{ disk_critical_threshold * 100 }}% of cloud disk space was used"
+        description: "{% raw %}{{ $value }}GB{% endraw %} of disk space in the cloud was used (at least {{ disk_critical_threshold * 100 }}%)."
 {%- endif %}
     NovaErrorLogsTooHigh:
       {%- set log_threshold = monitoring.error_log_rate.warn|float %}
