@@ -34,6 +34,7 @@ server:
 {%- set major_threshold = monitoring.services_failed_critical_threshold_percent|float %}
 {%- set minor_compute_threshold = monitoring.computes_failed_warning_threshold_percent|float %}
 {%- set major_compute_threshold = monitoring.computes_failed_critical_threshold_percent|float %}
+{%- set major_endpoint_threshold = monitoring.endpoint_failed_major_threshold|float %}
 {% raw %}
     NovaAPIOutage:
       if: >-
@@ -66,6 +67,29 @@ server:
         summary: "Host nova-api endpoint is not accessible"
         description: >-
           The host nova-api endpoint on the {{ $labels.host }} node is not accessible for at least 2 minutes.
+{%- endraw %}
+    NovaAPIServiceDownMajor:
+      if: >-
+        count(http_response_status{name=~"nova-api"} == 0) >= count(http_response_status{name=~"nova-api"}) * {{ major_endpoint_threshold }}
+      for: 2m
+      labels:
+        severity: major
+        service: nova
+      annotations:
+        summary: "{{major_endpoint_threshold * 100}}% of host nova-api endpoints are not accessible"
+        description: >-
+          {% raw %}{{ $value }} host nova-api endpoints are not accessible for at least 2 minutes (at least {% endraw %}{{major_endpoint_threshold * 100}}{% raw %}%).
+    NovaAPIServiceOutage:
+      if: >-
+        count(http_response_status{name=~"nova-api"} == 0) == count(http_response_status{name=~"nova-api"})
+      for: 2m
+      labels:
+        severity: critical
+        service: nova
+      annotations:
+        summary: "Host nova-api outage"
+        description: >-
+          All available host nova-api endpoints are not accessible for at least 2 minutes.
     NovaServiceDown:
       if: >-
         openstack_nova_service_state == 0
@@ -507,7 +531,8 @@ server:
         service: nova
       annotations:
         summary: "High number of errors in Nova logs"
-        description: "The rate of errors in Nova logs over the last 5 minutes is too high on the {{ $labels.host }} node (current value={{ $value }}, threshold={%- endraw %}{{ log_threshold }})."
+        description: "The average per-second rate of errors in Nova logs on the {{ $labels.host }} node is {{ $value }} (as measured over the last 5 minutes)."
+{%- endraw %}
 {%- if is_compute and exporters is defined %}
 {%- raw %}
     LibvirtDown:
