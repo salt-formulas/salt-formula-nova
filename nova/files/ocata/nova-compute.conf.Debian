@@ -5959,7 +5959,7 @@ live_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRAT
 inject_key=True
 vif_driver=nova.virt.libvirt.vif.LibvirtGenericVIFDriver
 
-{%- if compute.get('ceph', {}).ephemeral is defined %}
+{%- if compute.get('ceph', {}).get('ephemeral', False) %}
 images_type=rbd
 images_rbd_pool={{ compute.ceph.rbd_pool }}
 images_rbd_ceph_conf=/etc/ceph/ceph.conf
@@ -5967,7 +5967,7 @@ rbd_user={{ compute.ceph.rbd_user }}
 rbd_secret_uuid={{ compute.ceph.secret_uuid }}
 inject_password=false
 inject_key=false
-{%- elif compute.get('lvm', {}).ephemeral is defined %}
+{%- elif compute.get('lvm', {}).get('ephemeral', False) %}
 images_type=lvm
 images_volume_group={{ compute.lvm.images_volume_group }}
 {%- if compute.lvm.volume_clear is defined %}
