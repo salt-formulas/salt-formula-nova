@@ -136,6 +136,9 @@ Debian:
     region: RegionOne
   network: {{ compute_network }}
   heal_instance_info_cache_interval: '60'
+  message_queue:
+    zmq_linger: 30
+    rpc_response_timeout: 3600
   logging:
     log_appender: false
     log_handlers:
@@ -166,6 +169,9 @@ RedHat:
     region: RegionOne
   network: {{ compute_network }}
   heal_instance_info_cache_interval: '60'
+  message_queue:
+    zmq_linger: 30
+    rpc_response_timeout: 3600
   logging:
     log_appender: false
     log_handlers:
