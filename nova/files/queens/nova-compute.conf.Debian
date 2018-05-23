@@ -11208,7 +11208,7 @@ block_device_creation_timeout = {{ compute.block_device_creation_timeout }}
 {%- set _data = compute.notification %}
 {%- include "oslo_templates/files/queens/oslo/messaging/_notifications.conf" %}
 
-{%- if copmute.message_queue is defined %}
+{%- if compute.message_queue is defined %}
 {%- set _data = compute.message_queue %}
 {%- if _data.engine == 'rabbitmq' %}
     {%- set messaging_engine = 'rabbit' %}
