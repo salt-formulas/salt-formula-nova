@@ -920,6 +920,33 @@ For example:
 You can read more about injecting the administrator password here:
     https://docs.openstack.org/nova/queens/admin/admin-password-injection.html
 
+Enable libvirt control channel over TLS
+---------------------
+
+By default TLS is disabled.
+
+Enable TLS transport.
+
+  compute:
+    libvirt:
+      tls:
+        enabled: True
+
+You able to set custom certificates in pillar:
+
+  nova:
+    compute:
+      libvirt:
+        tls:
+          key: (certificate content)
+          cert: (certificate content)
+          cacert: (certificate content)
+          client:
+            key: (certificate content)
+            cert: (certificate content)
+
+You can read more about live migration over TLS here:
+    https://wiki.libvirt.org/page/TLSCreateServerCerts
 
 Documentation and Bugs
 ======================

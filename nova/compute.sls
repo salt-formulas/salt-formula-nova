@@ -138,6 +138,74 @@ rabbitmq_ca_nova_compute:
 {%- endif %}
 {%- endif %}
 
+{%- if compute.libvirt.get('tls',{}).get('enabled',False)  %}
+{%- set ca_file=compute.libvirt.tls.get('ca_file') %}
+{%- set key_file=compute.libvirt.tls.get('key_file') %}
+{%- set cert_file=compute.libvirt.tls.get('cert_file') %}
+{%- set client_key_file=compute.libvirt.tls.client.get('key_file') %}
+{%- set client_cert_file=compute.libvirt.tls.client.get('cert_file') %}
+
+libvirt_ca_nova_compute:
+{%- if compute.libvirt.tls.cacert is defined %}
+  file.managed:
+    - name: {{ ca_file }}
+    - contents_pillar: nova:compute:libvirt:tls:cacert
+    - mode: 444
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ ca_file }}
+{%- endif %}
+
+libvirt_public_cert:
+{%- if compute.libvirt.tls.cert is defined %}
+  file.managed:
+    - name: {{ cert_file }}
+    - contents_pillar: nova:compute:libvirt:tls:cert
+    - mode: 440
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ cert_file }}
+{%- endif %}
+
+libvirt_private_key:
+{%- if compute.libvirt.tls.key is defined %}
+  file.managed:
+    - name: {{ key_file }}
+    - contents_pillar: nova:compute:libvirt:tls:key
+    - mode: 400
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ key_file }}
+{%- endif %}
+
+libvirt_client_public_cert:
+{%- if compute.libvirt.tls.client.cert is defined %}
+  file.managed:
+    - name: {{ client_cert_file }}
+    - contents_pillar: nova:compute:libvirt:tls:client:cert
+    - mode: 440
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ client_cert_file }}
+{%- endif %}
+
+libvirt_client_key:
+{%- if compute.libvirt.tls.client.key is defined %}
+  file.managed:
+    - name: {{ client_key_file }}
+    - contents_pillar: nova:compute:libvirt:tls:client:key
+    - mode: 400
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ client_key_file }}
+{%- endif %}
+{%- endif %}
+
 nova_compute_services:
   service.running:
   - enable: true
