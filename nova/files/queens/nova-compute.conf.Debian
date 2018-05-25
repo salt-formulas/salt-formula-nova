@@ -4361,11 +4361,6 @@ memcache_servers={%- for member in compute.cache.members %}{{ member.host }}:112
 #
 # From nova.conf
 #
-os_region_name = {{ compute.identity.region }}
-catalog_info=volumev2:cinderv2:internalURL
-{%- if compute.image.get('protocol', 'http') == 'https' %}
-cafile={{ compute.identity.get('cacert_file', compute.cacert_file) }}
-{%- endif %}
 
 #
 # Info to match when looking for cinder in the service catalog.
@@ -4416,6 +4411,7 @@ cafile={{ compute.identity.get('cacert_file', compute.cacert_file) }}
 # * Any string representing region name
 #  (string value)
 #os_region_name = <None>
+os_region_name = {{ compute.identity.region }}
 
 #
 # Number of times cinderclient should retry on any failed http call.
@@ -4457,88 +4453,9 @@ cafile={{ compute.identity.get('cacert_file', compute.cacert_file) }}
 cross_az_attach={{ compute.cross_az_attach }}
 {%- endif %}
 
-# PEM encoded Certificate Authority to use when verifying HTTPs
-# connections. (string value)
-#cafile = <None>
-
-# PEM encoded client certificate cert file (string value)
-#certfile = <None>
-
-# PEM encoded client certificate key file (string value)
-#keyfile = <None>
-
-# Verify HTTPS connections. (boolean value)
-#insecure = false
-
-# Timeout value for http requests (integer value)
-#timeout = <None>
-
-# Authentication type to load (string value)
-# Deprecated group/name - [cinder]/auth_plugin
-#auth_type = <None>
-
-# Config Section from which to load plugin specific options (string
-# value)
-#auth_section = <None>
-
-# Authentication URL (string value)
-#auth_url = <None>
-
-# Scope for system operations (string value)
-#system_scope = <None>
-
-# Domain ID to scope to (string value)
-#domain_id = <None>
-
-# Domain name to scope to (string value)
-#domain_name = <None>
-
-# Project ID to scope to (string value)
-#project_id = <None>
-
-# Project name to scope to (string value)
-#project_name = <None>
-
-# Domain ID containing project (string value)
-#project_domain_id = <None>
-
-# Domain name containing project (string value)
-#project_domain_name = <None>
-
-# Trust ID (string value)
-#trust_id = <None>
-
-# Optional domain ID to use with v3 and v2 parameters. It will be used
-# for both the user and project domain in v3 and ignored in v2
-# authentication. (string value)
-#default_domain_id = <None>
-
-# Optional domain name to use with v3 API and v2 parameters. It will
-# be used for both the user and project domain in v3 and ignored in v2
-# authentication. (string value)
-#default_domain_name = <None>
-
-# User ID (string value)
-#user_id = <None>
-
-# Username (string value)
-# Deprecated group/name - [cinder]/user_name
-#username = <None>
-
-# User's domain id (string value)
-#user_domain_id = <None>
-
-# User's domain name (string value)
-#user_domain_name = <None>
-
-# User's password (string value)
-#password = <None>
-
-# Tenant ID (string value)
-#tenant_id = <None>
-
-# Tenant Name (string value)
-#tenant_name = <None>
+{%- set _data = compute.get('cinder', compute.get('identity', {})) %}
+{%- set auth_type = _data.get('auth_type', 'password') %}
+{%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
 
 
 [compute]
