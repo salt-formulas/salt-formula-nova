@@ -3706,67 +3706,11 @@ fping_path = /usr/sbin/fping
 
 
 [api_database]
-#
-# The *Nova API Database* is a separate database which is used for
-# information
-# which is used across *cells*. This database is mandatory since the
-# Mitaka
-# release (13.0.0).
-
-#
-# From nova.conf
-#
-
-# The SQLAlchemy connection string to use to connect to the database.
-# (string value)
-#connection = <None>
-connection=sqlite:////var/lib/nova/nova.sqlite
-
-# If True, SQLite uses synchronous mode. (boolean value)
-#sqlite_synchronous = true
-
-# The SQLAlchemy connection string to use to connect to the slave
-# database. (string value)
-#slave_connection = <None>
-
-# The SQL mode to be used for MySQL sessions. This option, including
-# the default, overrides any server-set SQL mode. To use whatever SQL
-# mode is set by the server configuration, set this to no value.
-# Example: mysql_sql_mode= (string value)
-#mysql_sql_mode = TRADITIONAL
-
-# Connections which have been present in the connection pool longer
-# than this number of seconds will be replaced with a new one the next
-# time they are checked out from the pool. (integer value)
-# Deprecated group/name - [api_database]/idle_timeout
-#connection_recycle_time = 3600
-
-# Maximum number of SQL connections to keep open in a pool. Setting a
-# value of 0 indicates no limit. (integer value)
-#max_pool_size = <None>
-
-# Maximum number of database connection retries during startup. Set to
-# -1 to specify an infinite retry count. (integer value)
-#max_retries = 10
-
-# Interval between retries of opening a SQL connection. (integer
-# value)
-#retry_interval = 10
-
-# If set, use this value for max_overflow with SQLAlchemy. (integer
-# value)
-#max_overflow = <None>
-
-# Verbosity of SQL debugging information: 0=None, 100=Everything.
-# (integer value)
-#connection_debug = 0
-
-# Add Python stack traces to SQL as comment strings. (boolean value)
-#connection_trace = false
-
-# If set, use this value for pool_timeout with SQLAlchemy. (integer
-# value)
-#pool_timeout = <None>
+{%- set _data = {} %}
+{%- do _data.update(controller.database) %}
+{%- do _data.update({'name': 'nova_api'}) %}
+{%- if _data.ssl is defined and 'cacert_file' not in _data.get('ssl', {}).keys() %}{% do _data['ssl'].update({'cacert_file': controller.cacert_file}) %}{% endif %}
+{%- include "oslo_templates/files/queens/oslo/_database.conf" %}
 
 {%- if controller.get('barbican', {}).get('enabled', False) %}
 {%- set _data = controller.identity %}
