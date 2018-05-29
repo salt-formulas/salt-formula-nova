@@ -260,7 +260,7 @@ nova_controller_map_cell0:
 
 nova_cell1_create:
   cmd.run:
-  - name: nova-manage cell_v2 create_cell --name=cell1
+  - name: nova-manage cell_v2 create_cell --name=cell1 --verbose
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
@@ -364,7 +364,7 @@ placement_config:
 
 nova_controller_discover_hosts:
   cmd.run:
-  - name: nova-manage cell_v2 discover_hosts
+  - name: nova-manage cell_v2 discover_hosts --verbose
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
