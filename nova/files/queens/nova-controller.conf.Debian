@@ -3191,6 +3191,7 @@ enabled_apis = osapi_compute,metadata
 # requests.
 #  (string value)
 #osapi_compute_listen = 0.0.0.0
+osapi_compute_listen = {{ controller.bind.private_address }}
 
 #
 # Port on which the OpenStack API will listen.
