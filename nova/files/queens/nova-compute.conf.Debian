@@ -3357,7 +3357,7 @@ enabled_apis = osapi_compute,metadata
 {%- endif %}
 
 {%- set _data = compute.message_queue %}
-{%- include "oslo_templates/files/queens/oslo/_messaging_default.conf" %}
+{%- include "oslo_templates/files/queens/oslo/messaging/_default.conf" %}
 
 [api]
 #
@@ -3712,9 +3712,9 @@ auth_strategy = keystone
 
 [api_database]
 {%- set _data = {} %}
-{%- do _data.update(controller.database) %}
+{%- do _data.update(compute.database) %}
 {%- do _data.update({'name': 'nova_api'}) %}
-{%- if _data.ssl is defined and 'cacert_file' not in _data.get('ssl', {}).keys() %}{% do _data['ssl'].update({'cacert_file': controller.cacert_file}) %}{% endif %}
+{%- if _data.ssl is defined and 'cacert_file' not in _data.get('ssl', {}).keys() %}{% do _data['ssl'].update({'cacert_file': compute.cacert_file}) %}{% endif %}
 {%- include "oslo_templates/files/queens/oslo/_database.conf" %}
 
 {%- if compute.get('barbican', {}).get('enabled', False) %}
