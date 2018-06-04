@@ -43,7 +43,7 @@ def map_instances(name='cell1'):
            'changes': {},
            'result': False,
            'comment': 'Cell "{0}" does not exists'.format(name)}
-    cell_uuid = __salt__['cmd.shell']('nova-manage cell_v2 list_cells 2>&- | grep ' + name + ' | tr -d \"\n\" | awk \'{print $4}\'')
+    cell_uuid = __salt__['cmd.shell']('nova-manage cell_v2 list_cells 2>/dev/null | awk \'/' + name + '/ {print $4}\'')
     if cell_uuid:
         try:
             __salt__['cmd.shell']('nova-manage cell_v2 map_instances --cell_uuid ' + cell_uuid)
@@ -65,7 +65,7 @@ def update_cell(name='cell1', transport_url='none:///', db_engine='mysql', db_na
            'changes': {},
            'result': False,
            'comment': 'Cell "{0}" does not exists'.format(name)}
-    cell_uuid = __salt__['cmd.shell']('nova-manage cell_v2 list_cells 2>&- | grep ' + name + ' | tr -d \"\n\" | awk \'{print $4}\'')
+    cell_uuid = __salt__['cmd.shell']('nova-manage cell_v2 list_cells 2>/dev/null | awk \'/' + name + '/ {print $4}\'')
     if cell_uuid:
         try:
             __salt__['cmd.shell']('nova-manage cell_v2 update_cell --cell_uuid ' + cell_uuid + ' --transport-url ' + transport_url + ' --database_connection ' + db_engine + '+pymysql://' + db_user + ':' + db_password + '@' + db_address + '/' + db_name + '?charset=utf8')
@@ -195,7 +195,7 @@ def availability_zone_present(name=None, availability_zone=None, profile=None):
     if zone_exists == False:
         item_created = __salt__['novang.availability_zone_create'](name, availability_zone, profile)
         if bool(item_created):
-            return _created(availability_zone, 'availabilty zone', item_created)         
+            return _created(availability_zone, 'availabilty zone', item_created)
     else:
         return _already_exists(availability_zone, 'availabilty zone')
     return existing_availability_zones
