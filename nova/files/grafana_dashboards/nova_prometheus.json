@@ -3303,7 +3303,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_total_used_vcpus)",
+              "expr": "sum(system_load15 and on (host) label_replace(openstack_nova_vcpus, \"host\", \"$1\", \"hostname\", \"(.*)\"))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -3381,7 +3381,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_total_used_disk)",
+              "expr": "max(sum(openstack_nova_used_disk) by (instance))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -3459,7 +3459,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_total_used_ram)",
+              "expr": "max(sum(openstack_nova_used_ram) by (instance))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -3537,7 +3537,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_total_free_vcpus)",
+              "expr": "sum(label_replace(openstack_nova_vcpus, \"host\", \"$1\", \"hostname\", \"(.*)\") - on (host) system_load15)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -3615,7 +3615,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_total_free_disk)",
+              "expr": "max(sum(openstack_nova_disk - openstack_nova_used_disk) by (instance))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -3693,7 +3693,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "max(openstack_nova_total_free_ram)",
+              "expr": "max(sum(openstack_nova_ram - openstack_nova_used_ram) by (instance))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
