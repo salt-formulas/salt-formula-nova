@@ -4379,6 +4379,7 @@ memcache_servers={%- for member in compute.cache.members %}{{ member.host }}:112
 # * endpoint_template - Setting this option will override catalog_info
 #  (string value)
 #catalog_info = volumev3:cinderv3:publicURL
+catalog_info = volumev3:cinderv3:publicURL
 
 #
 # If this option is set then it will override service catalog lookup
