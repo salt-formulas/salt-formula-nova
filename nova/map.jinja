@@ -127,6 +127,14 @@ Debian:
   libvirt:
     inject_partition: '-2'
     inject_password: False
+    tls:
+      enabled: False
+      key_file: '/etc/pki/libvirt/private/serverkey.pem'
+      cert_file: '/etc/pki/libvirt/servercert.pem'
+      ca_file: '/etc/pki/CA/cacert.pem'
+      client:
+        key_file: '/etc/pki/libvirt/private/clientkey.pem'
+        cert_file: '/etc/pki/libvirt/clientcert.pem'
   instances_path: "$state_path/instances"
   notification: false
   availability_zone:
@@ -163,6 +171,14 @@ RedHat:
   libvirt:
     inject_partition: '-2'
     inject_password: False
+    tls:
+      enabled: False
+      key_file: '/etc/pki/libvirt/private/serverkey.pem'
+      cert_file: '/etc/pki/libvirt/servercert.pem'
+      ca_file: '/etc/pki/CA/cacert.pem'
+      client:
+        key_file: '/etc/pki/libvirt/private/clientkey.pem'
+        cert_file: '/etc/pki/libvirt/clientcert.pem'
   notification: false
   availability_zone:
   identity:

@@ -22,11 +22,17 @@
 # This is enabled by default, uncomment this to disable it
 #listen_tls = 0
 
-
+{%- if compute.libvirt.tls.get('enabled', False) %}
+listen_tcp = 0
+listen_tls = 1
+key_file = {{compute.libvirt.tls.key_file|yaml_squote}}
+cert_file = {{compute.libvirt.tls.cert_file|yaml_squote}}
+ca_file = {{compute.libvirt.tls.ca_file|yaml_squote}}
+{% else %}
 listen_tls = 0
 listen_tcp = 1
 auth_tcp = "none"
-
+{% endif %}
 
 # Listen for unencrypted TCP connections on the public TCP/IP port.
 # NB, must pass the --listen flag to the libvirtd process for this to

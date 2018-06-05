@@ -6253,8 +6253,12 @@ volume_clear_size={{ compute.lvm.volume_clear_size }}
 {%- endif %}
 {%- endif %}
 
+{%- if compute.libvirt.tls.get('enabled', False) %}
+live_migration_scheme="tls"
+{%- else %}
 {%- if compute.get('libvirt', {}).uri is defined %}
 connection_uri={{ compute.libvirt.uri }}
+{%- endif %}
 {%- endif %}
 
 #
