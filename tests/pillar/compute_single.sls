@@ -7,6 +7,7 @@ nova:
     vncproxy_url: openstack:6080
     vnc_keymap: en-gb
     resume_guests_state_on_host_boot: False
+    preallocate_images: space
     cpu_mode: custom
     libvirt:
       cpu_model: IvyBridge

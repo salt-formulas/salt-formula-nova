@@ -376,6 +376,9 @@ vif_plugging_timeout = {{ compute.get('vif_plugging_timeout', '300') }}
 # none - <No description provided>
 # space - <No description provided>
 #preallocate_images = none
+{%- if compute.preallocate_images is defined %}
+preallocate_images = {{ compute.preallocate_images }}
+{%- endif %}
 
 #
 # Enable use of copy-on-write (cow) images.

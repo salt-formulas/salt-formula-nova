@@ -13,6 +13,7 @@ nova:
     report_interval: 60
     vnc_keymap: en-gb
     resume_guests_state_on_host_boot: True
+    preallocate_images: space
     bind:
       vnc_address: 127.0.0.1
       vnc_port: 6080

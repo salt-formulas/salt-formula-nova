@@ -265,6 +265,7 @@ Nova controller services on compute node
         - hosts_with_ssd
         security_group: true
         resume_guests_state_on_host_boot: False
+        preallocate_images: space  # Default is 'none'
         my_ip: 10.1.0.16
         bind:
           vnc_address: 172.20.0.100
