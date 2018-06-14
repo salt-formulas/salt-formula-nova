@@ -11007,6 +11007,7 @@ block_device_creation_timeout = {{ controller.block_device_creation_timeout }}
 
 [keystone_authtoken]
 {%- set _data = controller.identity %}
+{%- if 'cacert_file' not in _data.keys() %}{% do _data.update({'cacert_file': controller.cacert_file}) %}{% endif %}
 {%- set auth_type = _data.get('auth_type', 'password') %}
 {%- include "oslo_templates/files/queens/keystonemiddleware/_auth_token.conf" %}
 {%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
