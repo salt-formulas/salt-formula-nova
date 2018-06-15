@@ -698,7 +698,7 @@ ram_allocation_ratio = {{ controller.ram_allocation_ratio }}
 #   the top-level directory for maintaining nova's state. (default) or
 #   Any string representing directory path.
 #  (string value)
-#instances_path = 
+#instances_path =
 
 #
 # This option enables periodic compute.instance.exists notifications.
@@ -4375,7 +4375,7 @@ enable = false
 # * endpoint_template - Setting this option will override catalog_info
 #  (string value)
 #catalog_info = volumev3:cinderv3:publicURL
-catalog_info = volumev3:cinderv3:publicURL
+catalog_info = volumev3:cinderv3:internalURL
 
 #
 # If this option is set then it will override service catalog lookup
