@@ -49,6 +49,14 @@
             }
           }
         },
+        'novncproxy': {
+          'tls': {
+            'enabled': false,
+            'key_file': '/etc/pki/nova-novncproxy/client-key.pem',
+            'cert_file': '/etc/pki/nova-novncproxy/client-cert.pem',
+            'ca_file': '/etc/pki/nova-novncproxy/ca-cert.pem',
+          }
+        },
     },
     'RedHat': {
         'pkgs': pkgs_list,
@@ -65,6 +73,14 @@
             'watchedfile': {
               'enabled': true
             }
+          }
+        },
+        'novncproxy': {
+          'tls': {
+            'enabled': false,
+            'key_file': '/etc/pki/nova-novncproxy/client-key.pem',
+            'cert_file': '/etc/pki/nova-novncproxy/client-cert.pem',
+            'ca_file': '/etc/pki/nova-novncproxy/ca-cert.pem',
           }
         },
     },
@@ -124,6 +140,14 @@ Debian:
   libvirt_service: libvirt-bin
   bind: compute_bind_defaults
   debug: false
+  qemu:
+    vnc:
+      tls:
+        enabled: False
+        key_file: '/etc/pki/libvirt-vnc/server-key.pem'
+        cert_file: '/etc/pki/libvirt-vnc/server-cert.pem'
+        ca_file: '/etc/pki/libvirt-vnc/ca-cert.pem'
+        cert_dir: '/etc/pki/libvirt-vnc'
   libvirt:
     inject_partition: '-2'
     inject_password: False
@@ -168,6 +192,14 @@ RedHat:
   libvirt_service: libvirtd
   bind: compute_bind_defaults
   debug: false
+  qemu:
+    vnc:
+      tls:
+        enabled: False
+        key_file: '/etc/pki/libvirt-vnc/server-key.pem'
+        cert_file: '/etc/pki/libvirt-vnc/server-cert.pem'
+        ca_file: '/etc/pki/libvirt-vnc/ca-cert.pem'
+        cert_dir: '/etc/pki/libvirt-vnc'
   libvirt:
     inject_partition: '-2'
     inject_password: False

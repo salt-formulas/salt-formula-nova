@@ -31,7 +31,11 @@
 # before enabling this.
 #
 #vnc_tls = 1
-
+{%- if compute.qemu.vnc.tls.get('enabled', False) %}
+vnc_tls = 1
+vnc_tls_x509_verify = 1
+vnc_tls_x509_cert_dir = {{compute.qemu.vnc.tls.cert_dir|yaml_squote}}
+{%- endif %}
 
 # Use of TLS requires that x509 certificates be issued. The
 # default it to keep them in /etc/pki/libvirt-vnc. This directory
