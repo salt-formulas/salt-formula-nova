@@ -185,7 +185,7 @@ nova_general_logging_conf:
 {%- for name, rule in controller.get('policy', {}).iteritems() %}
 
 {%- if rule != None %}
-rule_{{ name }}_present:
+nova_keystone_rule_{{ name }}_present:
   keystone_policy.rule_present:
   - path: /etc/nova/policy.json
   - name: {{ name }}
@@ -198,7 +198,7 @@ rule_{{ name }}_present:
 
 {%- else %}
 
-rule_{{ name }}_absent:
+nova_keystone_rule_{{ name }}_absent:
   keystone_policy.rule_absent:
   - path: /etc/nova/policy.json
   - name: {{ name }}
