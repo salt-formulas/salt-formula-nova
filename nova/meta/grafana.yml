@@ -5,20 +5,32 @@ parameters:
   {%- endif %}
 dashboard:
 {%- if pillar.get('fluentd', {}).get('agent', {}).get('enabled', False) %}
-  nova_prometheus:
+  nova_overview_prometheus:
     datasource: prometheus
     format: json
-    template: nova/files/grafana_dashboards/nova_prometheus_fluentd.json
+    template: nova/files/grafana_dashboards/nova_overview_prometheus.json
 {%- else %}
   nova_prometheus:
     datasource: prometheus
     format: json
     template: nova/files/grafana_dashboards/nova_prometheus.json
 {%- endif %}
-  hypervisor_prometheus:
+  nova_hypervisor_prometheus:
     datasource: prometheus
     format: json
-    template: nova/files/grafana_dashboards/hypervisor_prometheus.json
+    template: nova/files/grafana_dashboards/nova_hypervisor_prometheus.json
+  nova_utilization_prometheus:
+    datasource: prometheus
+    format: json
+    template: nova/files/grafana_dashboards/nova_utilization_prometheus.json
+  nova_instances_prometheus:
+    datasource: prometheus
+    format: json
+    template: nova/files/grafana_dashboards/nova_instances_prometheus.json
+  openstack_overview_prometheus:
+    datasource: prometheus
+    format: json
+    template: nova/files/grafana_dashboards/openstack_overview_prometheus.json
   nova_influxdb:
     datasource: influxdb
     format: json
