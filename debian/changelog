@@ -1,0 +1,42 @@
+salt-formula-nova (2016.12.1-2xenial1) xenial; urgency=medium
+
+  * Fix files/pike symlink
+
+ -- devops <devops@mirantis.com>  Tue, 06 Feb 2018 15:40:55 +0200
+
+salt-formula-nova (2016.12.1-1xenial1) xenial; urgency=medium
+
+  * Build for Ubuntu Xenial
+
+ -- Filip Pytloun <filip@pytloun.cz>  Tue, 24 Jan 2017 12:15:30 +0100
+
+salt-formula-nova (2016.12.1-1) unstable; urgency=medium
+
+  * New upstream release
+  * d/{control,copyright}: Use my @debian.org email address
+  * Bumped debhelper version to 10
+
+ -- Ondřej Nový <onovy@debian.org>  Sun, 25 Dec 2016 17:06:06 +0100
+
+salt-formula-nova (2016.4.2-2) unstable; urgency=medium
+
+  * Added Debian tests
+
+ -- Ondřej Nový <novy@ondrej.org>  Wed, 08 Jun 2016 21:27:23 +0200
+
+salt-formula-nova (2016.4.2-1) unstable; urgency=medium
+
+  [ Filip Pytloun ]
+  * New upstream release
+
+  [ Ondřej Nový ]
+  * d/copyright: Added myself to Debian part
+  * Added myself as uploader
+
+ -- Ondřej Nový <novy@ondrej.org>  Sat, 23 Apr 2016 18:43:44 +0200
+
+salt-formula-nova (2016.4.1-1) unstable; urgency=medium
+
+  * Initial release (Closes: #821921)
+
+ -- Filip Pytloun <filip@pytloun.cz>  Wed, 20 Apr 2016 16:04:36 +0200

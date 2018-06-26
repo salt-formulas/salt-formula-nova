@@ -1,0 +1,25 @@
+Source: salt-formula-nova
+Maintainer: PKG OpenStack <openstack-devel@lists.alioth.debian.org>
+Uploaders: Filip Pytloun <filip@pytloun.cz>,
+           Ondřej Nový <onovy@debian.org>,
+Section: admin
+Priority: extra
+Build-Depends: debhelper (>= 9),
+               openstack-pkg-tools,
+Build-Depends-Indep: python-all,
+                     python-yaml,
+                     salt-formula-keystone,
+Standards-Version: 3.9.6
+Homepage: https://wiki.openstack.org/wiki/OpenStackSalt
+Vcs-Browser: https://anonscm.debian.org/cgit/openstack/salt-formula-nova.git/
+Vcs-Git: https://anonscm.debian.org/git/openstack/salt-formula-nova.git
+
+Package: salt-formula-nova
+Architecture: all
+Depends: ${misc:Depends},
+Description: Salt formula for OpenStack Nova
+ Salt is a powerful remote execution manager that can be used to
+ administer servers in a fast and efficient way.
+ .
+ This SaltStack formula manages both installation and configuration of
+ OpenStack Nova.
