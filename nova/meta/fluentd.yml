@@ -43,8 +43,9 @@ agent:
                 value: INFO
               - name: programname
                 value: nova-placement-wsgi
+                # Apache logs response time in microseconds
               - name: http_response_time
-                value: ${ record['http_response_time'].to_i/100000.to_f }
+                value: ${ record['http_response_time'].to_i/10**6.to_f }
         match:
           send_to_default:
             tag: openstack.nova
