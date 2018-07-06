@@ -257,7 +257,13 @@
       "tableColumn": "",
       "targets": [
         {
+          {%- endraw %}
+          {%- if parameters is defined and parameters.get('nova_compute_ceph_ephemeral', False) == True %}
+          "expr": "max(avg(openstack_nova_used_disk) by (instance)) / max(avg(openstack_nova_disk) by (instance))",
+          {%- else %}
           "expr": "max(sum(openstack_nova_used_disk) by (instance)) / max(sum(openstack_nova_disk) by (instance))",
+          {%- endif %}
+          {%- raw %}
           "format": "time_series",
           "intervalFactor": 2,
           "refId": "A"
