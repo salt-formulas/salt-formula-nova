@@ -949,6 +949,45 @@ You able to set custom certificates in pillar:
 You can read more about live migration over TLS here:
     https://wiki.libvirt.org/page/TLSCreateServerCerts
 
+Enable transport + authentication for VNC over TLS
+---------------------
+
+By default communication between nova-novncproxy and qemu service is unsecure.
+
+compute:
+  qemu:
+    vnc:
+      tls:
+        enabled: True
+
+controller:
+  novncproxy:
+    tls:
+      enabled: True
+
+You able to set custom certificates in pillar:
+
+  nova:
+    compute:
+      qemu:
+        vnc:
+          tls:
+            cacert (certificate content)
+            cert (certificate content)
+            key (certificate content)
+
+  nova:
+    controller:
+      novncproxy:
+        tls:
+          cacert (certificate content)
+          cert (certificate content)
+          key (certificate content)
+          allfile (certificate content)
+
+You can read more about it here:
+    https://docs.openstack.org/nova/queens/admin/remote-console-access.html
+
 Documentation and Bugs
 ======================
 
