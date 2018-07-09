@@ -206,6 +206,50 @@ libvirt_client_key:
 {%- endif %}
 {%- endif %}
 
+{%- if compute.qemu.vnc.tls.get('enabled', False) %}
+
+{%- set ca_file=compute.qemu.vnc.tls.get('ca_file') %}
+{%- set key_file=compute.qemu.vnc.tls.get('key_file') %}
+{%- set cert_file=compute.qemu.vnc.tls.get('cert_file') %}
+
+qemu_ca_nova_compute:
+{%- if compute.qemu.vnc.tls.cacert is defined %}
+  file.managed:
+    - name: {{ ca_file }}
+    - contents_pillar: nova:compute:qemu:vnc:tls:cacert
+    - mode: 444
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ ca_file }}
+{%- endif %}
+
+qemu_public_cert:
+{%- if compute.qemu.vnc.tls.cert is defined %}
+  file.managed:
+    - name: {{ cert_file }}
+    - contents_pillar: nova:compute:qemu:vnc:tls:cert
+    - mode: 440
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ cert_file }}
+{%- endif %}
+
+qemu_private_key:
+{%- if compute.qemu.vnc.tls.key is defined %}
+  file.managed:
+    - name: {{ key_file }}
+    - contents_pillar: nova:compute:qemu:vnc:tls:key
+    - mode: 400
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ key_file }}
+{%- endif %}
+
+{%- endif %}
+
 nova_compute_services:
   service.running:
   - enable: true

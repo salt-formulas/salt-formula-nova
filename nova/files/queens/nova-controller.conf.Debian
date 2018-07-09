@@ -9848,6 +9848,12 @@ vncserver_proxyclient_address={{ controller.bind.private_address }}
 {%- else %}
 vncserver_listen={{ controller.bind.get('novncproxy_address', '0.0.0.0') }}
 {%- endif %}
+{%- if controller.novncproxy.tls.get('enabled', False) %}
+auth_schemes=vencrypt
+vencrypt_client_key={{controller.novncproxy.tls.key_file|yaml_squote}}
+vencrypt_client_cert={{controller.novncproxy.tls.cert_file|yaml_squote}}
+vencrypt_ca_certs={{controller.novncproxy.tls.ca_file|yaml_squote}}
+{%- endif %}
 
 #
 # Keymap for VNC.

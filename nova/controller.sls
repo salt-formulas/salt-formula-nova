@@ -64,6 +64,65 @@ group_nova:
       - user: user_nova
 {%- endif %}
 
+{%- if controller.novncproxy.tls.get('enabled', False) %}
+
+{%- set ca_file=controller.novncproxy.tls.get('ca_file') %}
+{%- set key_file=controller.novncproxy.tls.get('key_file') %}
+{%- set cert_file=controller.novncproxy.tls.get('cert_file') %}
+{%- set all_file=controller.novncproxy.tls.get('all_file') %}
+
+novncproxy_ca_nova_compute:
+{%- if controller.novncproxy.tls.cacert is defined %}
+  file.managed:
+    - name: {{ ca_file }}
+    - contents_pillar: nova:controller:novncproxy:tls:cacert
+    - mode: 444
+    - makedirs: true
+    - watch_in:
+      - service: nova_controller_services
+{%- else %}
+  file.exists:
+   - name: {{ ca_file }}
+{%- endif %}
+
+novncproxy_public_cert:
+{%- if controller.novncproxy.tls.cert is defined %}
+  file.managed:
+    - name: {{ cert_file }}
+    - contents_pillar: nova:controller:novncproxy:tls:cert
+    - mode: 440
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ cert_file }}
+{%- endif %}
+
+novncproxy_private_key:
+{%- if controller.novncproxy.tls.key is defined %}
+  file.managed:
+    - name: {{ key_file }}
+    - contents_pillar: nova:controller:novncproxy:tls:key
+    - mode: 400
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ key_file }}
+{%- endif %}
+
+novncproxy_all_file:
+{%- if controller.novncproxy.tls.allfile is defined %}
+  file.managed:
+    - name: {{ all_file }}
+    - contents_pillar: nova:controller:novncproxy:tls:allfile
+    - mode: 440
+    - makedirs: true
+{%- else %}
+  file.exists:
+   - name: {{ all_file }}
+{%- endif %}
+
+{%- endif %}
+
 {%- if controller.get('networking', 'default') == "contrail" and controller.version == "juno" %}
 
 contrail_nova_packages:
