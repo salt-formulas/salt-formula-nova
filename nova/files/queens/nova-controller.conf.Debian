@@ -4444,6 +4444,7 @@ cross_az_attach={{ controller.cross_az_attach }}
 {%- endif %}
 
 {%- set _data = controller.get('cinder', controller.get('identity', {})) %}
+{%- if 'cacert_file' not in _data.keys() %}{% do _data.update({'cacert_file': controller.cacert_file}) %}{% endif %}
 {%- set auth_type = _data.get('auth_type', 'password') %}
 {%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
 
