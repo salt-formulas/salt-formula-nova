@@ -52,9 +52,18 @@
         'novncproxy': {
           'tls': {
             'enabled': false,
-            'key_file': '/etc/pki/nova-novncproxy/client-key.pem',
-            'cert_file': '/etc/pki/nova-novncproxy/client-cert.pem',
-            'ca_file': '/etc/pki/nova-novncproxy/ca-cert.pem',
+            'server': {
+              'key_file': '/etc/pki/nova-novncproxy/server-key.pem',
+              'cert_file': '/etc/pki/nova-novncproxy/server-cert.pem',
+            }
+          },
+          'vencrypt': {
+            'tls': {
+              'enabled': false,
+              'key_file': '/etc/pki/nova-novncproxy/client-key.pem',
+              'cert_file': '/etc/pki/nova-novncproxy/client-cert.pem',
+              'ca_file': '/etc/pki/nova-novncproxy/ca-cert.pem',
+            }
           }
         },
     },
@@ -78,9 +87,18 @@
         'novncproxy': {
           'tls': {
             'enabled': false,
-            'key_file': '/etc/pki/nova-novncproxy/client-key.pem',
-            'cert_file': '/etc/pki/nova-novncproxy/client-cert.pem',
-            'ca_file': '/etc/pki/nova-novncproxy/ca-cert.pem',
+            'server': {
+              'key_file': '/etc/pki/nova-novncproxy/server-key.pem',
+              'cert_file': '/etc/pki/nova-novncproxy/server-cert.pem',
+            }
+          },
+          'vencrypt': {
+            'tls': {
+              'enabled': false,
+              'key_file': '/etc/pki/nova-novncproxy/client-key.pem',
+              'cert_file': '/etc/pki/nova-novncproxy/client-cert.pem',
+              'ca_file': '/etc/pki/nova-novncproxy/ca-cert.pem',
+            }
           }
         },
     },

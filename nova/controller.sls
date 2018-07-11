@@ -64,18 +64,19 @@ group_nova:
       - user: user_nova
 {%- endif %}
 
-{%- if controller.novncproxy.tls.get('enabled', False) %}
+# Only for Queens. Communication between noVNC proxy service and QEMU
+{%- if controller.version not in ['mitaka', 'newton', 'ocata', 'pike'] %}
+{%- if controller.novncproxy.vencrypt.tls.get('enabled', False) %}
 
-{%- set ca_file=controller.novncproxy.tls.get('ca_file') %}
-{%- set key_file=controller.novncproxy.tls.get('key_file') %}
-{%- set cert_file=controller.novncproxy.tls.get('cert_file') %}
-{%- set all_file=controller.novncproxy.tls.get('all_file') %}
+{%- set ca_file=controller.novncproxy.vencrypt.tls.get('ca_file') %}
+{%- set key_file=controller.novncproxy.vencrypt.tls.get('key_file') %}
+{%- set cert_file=controller.novncproxy.vencrypt.tls.get('cert_file') %}
 
-novncproxy_ca_nova_compute:
-{%- if controller.novncproxy.tls.cacert is defined %}
+novncproxy_vencrypt_ca:
+{%- if controller.novncproxy.vencrypt.tls.cacert is defined %}
   file.managed:
     - name: {{ ca_file }}
-    - contents_pillar: nova:controller:novncproxy:tls:cacert
+    - contents_pillar: nova:controller:novncproxy:vencrypt:tls:cacert
     - mode: 444
     - makedirs: true
     - watch_in:
@@ -85,11 +86,11 @@ novncproxy_ca_nova_compute:
    - name: {{ ca_file }}
 {%- endif %}
 
-novncproxy_public_cert:
-{%- if controller.novncproxy.tls.cert is defined %}
+novncproxy_vencrypt_public_cert:
+{%- if controller.novncproxy.vencrypt.tls.cert is defined %}
   file.managed:
     - name: {{ cert_file }}
-    - contents_pillar: nova:controller:novncproxy:tls:cert
+    - contents_pillar: nova:controller:novncproxy:vencrypt:tls:cert
     - mode: 440
     - makedirs: true
 {%- else %}
@@ -97,30 +98,49 @@ novncproxy_public_cert:
    - name: {{ cert_file }}
 {%- endif %}
 
-novncproxy_private_key:
-{%- if controller.novncproxy.tls.key is defined %}
+novncproxy_vencrypt_private_key:
+{%- if controller.novncproxy.vencrypt.tls.key is defined %}
   file.managed:
     - name: {{ key_file }}
-    - contents_pillar: nova:controller:novncproxy:tls:key
+    - contents_pillar: nova:controller:novncproxy:vencrypt:tls:key
     - mode: 400
     - makedirs: true
 {%- else %}
   file.exists:
    - name: {{ key_file }}
 {%- endif %}
+{%- endif %}
+{%- endif %}
 
-novncproxy_all_file:
-{%- if controller.novncproxy.tls.allfile is defined %}
+{%- if controller.novncproxy.tls.get('enabled', False) %}
+{%- set key_file=controller.novncproxy.tls.server.get('key_file') %}
+{%- set cert_file=controller.novncproxy.tls.server.get('cert_file') %}
+
+novncproxy_server_public_cert:
+{%- if controller.novncproxy.tls.server.cert is defined %}
   file.managed:
-    - name: {{ all_file }}
-    - contents_pillar: nova:controller:novncproxy:tls:allfile
+    - name: {{ cert_file }}
+    - contents_pillar: nova:controller:novncproxy:tls:server:cert
     - mode: 440
+    - makedirs: true
+    - watch_in:
+      - service: nova_controller_services
+{%- else %}
+  file.exists:
+   - name: {{ cert_file }}
+{%- endif %}
+
+novncproxy_server_private_key:
+{%- if controller.novncproxy.tls.server.key is defined %}
+  file.managed:
+    - name: {{ key_file }}
+    - contents_pillar: nova:controller:novncproxy:tls:server:key
+    - mode: 400
     - makedirs: true
 {%- else %}
   file.exists:
-   - name: {{ all_file }}
+   - name: {{ key_file }}
 {%- endif %}
-
 {%- endif %}
 
 {%- if controller.get('networking', 'default') == "contrail" and controller.version == "juno" %}

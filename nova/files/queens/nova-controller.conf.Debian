@@ -3028,6 +3028,11 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 
 # Disallow non-encrypted connections. (boolean value)
 #ssl_only = false
+{%- if controller.novncproxy.tls.get('enabled', False) %}
+ssl_only=True
+cert={{controller.novncproxy.tls.server.cert_file|yaml_squote}}
+key={{controller.novncproxy.tls.server.key_file|yaml_squote}}
+{%- endif %}
 
 # Set to True if source host is addressed with IPv6. (boolean value)
 #source_is_ipv6 = false
@@ -9848,11 +9853,11 @@ vncserver_proxyclient_address={{ controller.bind.private_address }}
 {%- else %}
 vncserver_listen={{ controller.bind.get('novncproxy_address', '0.0.0.0') }}
 {%- endif %}
-{%- if controller.novncproxy.tls.get('enabled', False) %}
+{%- if controller.novncproxy.vencrypt.tls.get('enabled', False) %}
 auth_schemes=vencrypt
-vencrypt_client_key={{controller.novncproxy.tls.key_file|yaml_squote}}
-vencrypt_client_cert={{controller.novncproxy.tls.cert_file|yaml_squote}}
-vencrypt_ca_certs={{controller.novncproxy.tls.ca_file|yaml_squote}}
+vencrypt_client_key={{controller.novncproxy.vencrypt.tls.key_file|yaml_squote}}
+vencrypt_client_cert={{controller.novncproxy.vencrypt.tls.cert_file|yaml_squote}}
+vencrypt_ca_certs={{controller.novncproxy.vencrypt.tls.ca_file|yaml_squote}}
 {%- endif %}
 
 #
