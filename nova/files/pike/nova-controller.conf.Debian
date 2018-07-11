@@ -2789,7 +2789,9 @@ verbose=true
 # example, logging_context_format_string). (string value)
 # Note: This option can be changed without restarting.
 # Deprecated group/name - [DEFAULT]/log_config
-#log_config_append=<None>
+{%- if controller.logging.log_appender %}
+log_config_append=/etc/nova/logging.conf
+{%- endif %}
 
 # Defines the format string for %%(asctime)s in log records. Default:
 # %(default)s . This option is ignored if log_config_append is set. (string
