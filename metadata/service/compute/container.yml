@@ -10,7 +10,6 @@ parameters:
               compute:
                 version: ${_param:nova_version}
                 enabled: true
-                virtualization: kvm
                 vncproxy_url: http://${_param:nova_service_host}:6080
                 reserved_host_memory_mb: 32768
                 libvirt:
