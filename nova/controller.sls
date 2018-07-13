@@ -175,7 +175,7 @@ nova_controller_fluentd_logger_package:
 nova_general_logging_conf:
   file.managed:
     - name: /etc/nova/logging.conf
-    - source: salt://nova/files/logging.conf
+    - source: salt://oslo_templates/files/logging/_logging.conf
     - template: jinja
     - user: nova
     - group: nova
@@ -186,7 +186,7 @@ nova_general_logging_conf:
 {%- endif %}
     - defaults:
         service_name: nova
-        values: {{ controller }}
+        _data: {{ controller.logging }}
     - watch_in:
       - service: nova_controller_services
 
@@ -205,7 +205,7 @@ nova_general_logging_conf:
 {{ service_name }}_logging_conf:
   file.managed:
     - name: /etc/nova/logging/logging-{{ service_name }}.conf
-    - source: salt://nova/files/logging.conf
+    - source: salt://oslo_templates/files/logging/_logging.conf
     - template: jinja
     - user: nova
     - group: nova
@@ -217,7 +217,7 @@ nova_general_logging_conf:
     - makedirs: True
     - defaults:
         service_name: {{ service_name }}
-        values: {{ controller }}
+        _data: {{ controller.logging }}
     - watch_in:
       - service: nova_controller_services
 {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
