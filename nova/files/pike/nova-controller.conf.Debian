@@ -2525,6 +2525,11 @@ firewall_driver=nova.virt.firewall.NoopFirewallDriver
 
 # Disallow non-encrypted connections. (boolean value)
 #ssl_only=false
+{%- if controller.novncproxy.tls.get('enabled', False) %}
+ssl_only=True
+cert={{controller.novncproxy.tls.server.cert_file|yaml_squote}}
+key={{controller.novncproxy.tls.server.key_file|yaml_squote}}
+{%- endif %}
 
 # Set to True if source host is addressed with IPv6. (boolean value)
 #source_is_ipv6=false

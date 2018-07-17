@@ -951,6 +951,7 @@ You can read more about live migration over TLS here:
 
 Enable transport + authentication for VNC over TLS
 ---------------------
+# Only for Queens. Communication between noVNC proxy service and QEMU
 
 By default communication between nova-novncproxy and qemu service is unsecure.
 
@@ -962,31 +963,62 @@ compute:
 
 controller:
   novncproxy:
+    # This section responsible for communication between noVNC proxy and client machine
     tls:
       enabled: True
+    # This section responsible for communication between nova-novncproxy and qemu service
+    vencrypt:
+      tls:
+        enabled: True
 
 You able to set custom certificates in pillar:
 
-  nova:
-    compute:
-      qemu:
-        vnc:
-          tls:
-            cacert (certificate content)
-            cert (certificate content)
-            key (certificate content)
+nova:
+  compute:
+    qemu:
+      vnc:
+        tls:
+          cacert (certificate content)
+          cert (certificate content)
+          key (certificate content)
+
+nova:
+  controller:
+    novncproxy:
+      tls:
+        server:
+          cert (certificate content)
+          key (certificate content)
+      vencrypt:
+        tls:
+          cacert (certificate content)
+          cert (certificate content)
+          key (certificate content)
+
+
+You can read more about it here:
+    https://docs.openstack.org/nova/queens/admin/remote-console-access.html
+
+Enable communication between noVNC proxy and client machine over TLS
+---------------------
+
+By default communication between noVNC proxy and client machine is unsecure.
+
+  controller:
+    novncproxy:
+      tls:
+        enabled: True
 
   nova:
     controller:
       novncproxy:
         tls:
-          cacert (certificate content)
-          cert (certificate content)
-          key (certificate content)
-          allfile (certificate content)
+          server:
+            cert (certificate content)
+            key (certificate content)
 
 You can read more about it here:
-    https://docs.openstack.org/nova/queens/admin/remote-console-access.html
+    https://docs.openstack.org/mitaka/config-reference/dashboard/configure.html
 
 Documentation and Bugs
 ======================
