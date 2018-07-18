@@ -42,6 +42,7 @@
           'enabled': false
         },
         'logging': {
+          'app_name': 'nova',
           'log_appender': false,
           'log_handlers': {
             'watchedfile': {
@@ -77,6 +78,7 @@
           'enabled': false
         },
         'logging': {
+          'app_name': 'nova',
           'log_appender': false,
           'log_handlers': {
             'watchedfile': {
@@ -190,6 +192,7 @@ Debian:
     zmq_linger: 30
     rpc_response_timeout: 3600
   logging:
+    app_name: 'nova'
     log_appender: false
     log_handlers:
       watchedfile:
@@ -239,6 +242,7 @@ RedHat:
     zmq_linger: 30
     rpc_response_timeout: 3600
   logging:
+    app_name: 'nova'
     log_appender: false
     log_handlers:
       watchedfile:
