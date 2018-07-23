@@ -1,3 +1,8 @@
+{%- if parameters is defined and parameters.get('nova_cert_enabled', False) == True %}
+  {%- set service_width = 6 %}
+{%- else %}
+  {%- set service_width = 8 %}
+{%- endif %}
 {%- raw %}
 {
   "annotations": {
@@ -912,120 +917,8 @@
       "fill": 4,
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 17
-      },
-      "id": 19,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": false,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "repeat": null,
-      "repeatDirection": "h",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 1 and openstack_nova_service_status{binary=\"nova-cert\"} == 1) by (instance))",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "legendFormat": "enabled/up",
-          "refId": "A"
-        },
-        {
-          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 1 and openstack_nova_service_status{binary=\"nova-cert\"} == 0) by (instance))",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "legendFormat": "enabled/down",
-          "refId": "B"
-        },
-        {
-          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 0 and openstack_nova_service_status{binary=\"nova-cert\"} == 1) by (instance))",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "legendFormat": "disabled/up",
-          "refId": "C"
-        },
-        {
-          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 0 and openstack_nova_service_status{binary=\"nova-cert\"} == 0) by (instance))",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "legendFormat": "disabled/down",
-          "refId": "D"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Nova Cert",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "transparent": false,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": null,
-      "fill": 4,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
+        "w": {% endraw %}{{ service_width }}{% raw %},
+        "x": {% endraw %}{{ service_width * 0 }}{% raw %},
         "y": 17
       },
       "id": 27,
@@ -1134,8 +1027,8 @@
       "fill": 4,
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 12,
+        "w": {% endraw %}{{ service_width }}{% raw %},
+        "x": {% endraw %}{{ service_width * 1 }}{% raw %},
         "y": 17
       },
       "id": 28,
@@ -1244,8 +1137,8 @@
       "fill": 4,
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": {% endraw %}{{ service_width }}{% raw %},
+        "x": {% endraw %}{{ service_width * 2 }}{% raw %},
         "y": 17
       },
       "id": 29,
@@ -1345,6 +1238,125 @@
         "alignLevel": null
       }
     },
+{%- endraw %}
+{%- if parameters is defined and parameters.get('nova_cert_enabled', False) == True %}
+{%- set service_width = 6 %}
+{%- raw %}
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 4,
+      "gridPos": {
+        "h": 5,
+        "w": {% endraw %}{{ service_width }}{% raw %},
+        "x": {% endraw %}{{ service_width * 3 }}{% raw %},
+        "y": 17
+      },
+      "id": 19,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "repeat": null,
+      "repeatDirection": "h",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 1 and openstack_nova_service_status{binary=\"nova-cert\"} == 1) by (instance))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "enabled/up",
+          "refId": "A"
+        },
+        {
+          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 1 and openstack_nova_service_status{binary=\"nova-cert\"} == 0) by (instance))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "enabled/down",
+          "refId": "B"
+        },
+        {
+          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 0 and openstack_nova_service_status{binary=\"nova-cert\"} == 1) by (instance))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "disabled/up",
+          "refId": "C"
+        },
+        {
+          "expr": "max(count(openstack_nova_service_state{binary=\"nova-cert\"} == 0 and openstack_nova_service_status{binary=\"nova-cert\"} == 0) by (instance))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "disabled/down",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Nova Cert",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": false,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+{%- endraw %}
+{%- endif %}
+{%- raw %}
     {
       "aliasColors": {},
       "bars": false,
