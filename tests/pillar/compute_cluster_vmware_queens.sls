@@ -1,15 +1,7 @@
 nova:
   compute:
-    version: newton
+    version: queens
     enabled: true
-    heal_instance_info_cache_interval: 60
-    vncproxy_url: openstack:6080
-    vnc_keymap: en-gb
-    resume_guests_state_on_host_boot: False
-    preallocate_images: space
-    cpu_mode: custom
-    libvirt:
-      cpu_model: IvyBridge
     bind:
       vnc_address: 127.0.0.1
       vnc_port: 6080
@@ -40,8 +32,10 @@ nova:
           enabled: false
     message_queue:
       engine: rabbitmq
-      host: 127.0.0.1
-      port: 5672
+      members:
+      - host: 127.0.0.1
+      - host: 127.0.1.1
+      - host: 127.0.2.1
       user: openstack
       password: password
       virtual_host: '/openstack'
@@ -54,13 +48,31 @@ nova:
       region: RegionOne
       host: 127.0.0.1
       port: 9696
+      extension_sync_interval: 600
+      user: nova
       password: password
+      tenant: service
+    metadata:
+      password: metadata
     cache:
       engine: memcached
       members:
       - host: 127.0.0.1
         port: 11211
-    qemu:
-      user: nova
-      group: cinder
-      dynamic_ownership: 1
+      - host: 127.0.1.1
+        port: 11211
+      - host: 127.0.2.1
+        port: 11211
+    compute_driver: vmwareapi.VMwareVCDriver
+    vmware:
+      host_username: vmware
+      host_password: vmware
+      cluster_name: vmware_cluster01
+    upgrade_levels:
+      compute: liberty
+    libvirt_service_group: libvirtd
+    lvm:
+      ephemeral: yes
+      images_volume_group: nova_vg
+      volume_clear: zero
+      volume_clear_size: 0

@@ -2,7 +2,6 @@ nova:
   compute:
     version: mitaka
     enabled: true
-    virtualization: kvm
     heal_instance_info_cache_interval: 60
     vncproxy_url: openstack:6080
     vnc_keymap: en-gb

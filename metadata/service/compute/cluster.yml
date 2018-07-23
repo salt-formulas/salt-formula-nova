@@ -4,7 +4,6 @@ classes:
 - service.nova.support
 parameters:
   _param:
-    nova_compute_virtualization: kvm
     openstack_log_appender: false
     openstack_fluentd_handler_enabled: false
     openstack_ossyslog_handler_enabled: false
@@ -12,7 +11,6 @@ parameters:
     compute:
       version: ${_param:nova_version}
       enabled: true
-      virtualization: ${_param:nova_compute_virtualization}
       heal_instance_info_cache_interval: 60
       vncproxy_url: http://${_param:cluster_vip_address}:6080
       bind:

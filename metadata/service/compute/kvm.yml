@@ -11,7 +11,6 @@ parameters:
     compute:
       version: ${_param:nova_version}
       enabled: true
-      virtualization: kvm
       heal_instance_info_cache_interval: 60
       vncproxy_url: http://${_param:cluster_vip_address}:6080
       bind:

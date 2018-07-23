@@ -256,7 +256,6 @@ Nova controller services on compute node
       compute:
         version: juno
         enabled: true
-        virtualization: kvm
         cross_az_attach: false
         disk_cachemodes: network=writeback,block=none
         availability_zone: availability_zone_01
@@ -312,6 +311,22 @@ Nova controller services on compute node
           max_files: 4096
           max_processes: 4096
         host: node-12.domain.tld
+
+Compute with vmware driver. Each vmware cluster requires a separate process of nova-compute.
+Each process should have uniq host identifier. However multiple computes might be running on
+single host. It is not recommended to have multiple computes running on different hosts that
+manage the same vmware cluster. To achive this pacemaker/corosync or keepalived might be used.
+
+.. code-block:: yaml
+
+    nova:
+      compute:
+        compute_driver: vmwareapi.VMwareVCDriver
+        vmware:
+          host_username: vmware
+          host_password: vmware
+          cluster_name: vmware_cluster01
+          host_ip: 1.2.3.4
 
 Group and user to be used for QEMU processes run by the system instance
 

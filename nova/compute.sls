@@ -297,7 +297,7 @@ Add_compute_to_aggregate_{{ aggregate }}:
 
 {%- endfor %}
 
-{%- if compute.virtualization == 'kvm' %}
+{%- if compute.get('compute_driver', 'libvirt.LibvirtDriver') == 'libvirt.LibvirtDriver' %}
 
 {%- if not salt['user.info']('nova') %}
 # MOS9 libvirt fix to create group

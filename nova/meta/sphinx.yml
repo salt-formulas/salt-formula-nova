@@ -10,9 +10,6 @@ doc:
         version:
           name: "Version"
           value: {{ compute.version }}
-        virtualization:
-          name: "Virtualization type"
-          value: {{ compute.virtualization }}
         {%- if compute.vncproxy_url is defined %}
         vncproxy_url:
           name: "VNC proxy URL"
