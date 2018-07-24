@@ -1,7 +1,10 @@
-{%- from "nova/map.jinja" import compute with context %}
+{%- from "nova/map.jinja" import controller, compute with context %}
 parameters:
   {%- if compute is defined and compute.get('enabled', False) and compute.get('ceph', {}).get('ephemeral', False) %}
   nova_compute_ceph_ephemeral: True
+  {%- endif %}
+  {%- if controller is defined and controller.get('version',{}) in ["juno", "kilo", "liberty", "mitaka"] %}
+  nova_cert_enabled: True
   {%- endif %}
 dashboard:
 {%- if pillar.get('fluentd', {}).get('agent', {}).get('enabled', False) %}
