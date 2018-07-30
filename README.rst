@@ -1,6 +1,6 @@
 
 ============
-Nova Formula
+Usage
 ============
 
 OpenStack Nova provides a cloud computing fabric controller, supporting a wide
@@ -14,7 +14,7 @@ Sample Pillars
 Controller nodes
 ----------------
 
-Nova services on the controller node
+Nova services on the controller node:
 
 .. code-block:: yaml
 
@@ -74,8 +74,7 @@ Nova services on the controller node
         barbican:
           enabled: true
 
-
-Nova services from custom package repository
+Nova services from custom package repository:
 
 .. code-block:: yaml
 
@@ -87,8 +86,7 @@ Nova services from custom package repository
           address: http://...
       ....
 
-
-Client-side RabbitMQ HA setup
+Client-side RabbitMQ HA setup:
 
 .. code-block:: yaml
 
@@ -106,8 +104,7 @@ Client-side RabbitMQ HA setup
          virtual_host: '/openstack'
       ....
 
-
-Enable auditing filter, ie: CADF
+Enable auditing filter, i.e: CADF:
 
 .. code-block:: yaml
 
@@ -120,8 +117,7 @@ Enable auditing filter, ie: CADF
           map_file: '/etc/pycadf/nova_api_audit_map.conf'
       ....
 
-
-Enable CORS parameters
+Enable CORS parameters:
 
 .. code-block:: yaml
 
@@ -135,7 +131,7 @@ Enable CORS parameters
           allow_credentials: True
           max_age: 86400
 
-Configuration of policy.json file
+Configuration of the ``policy.json`` file:
 
 .. code-block:: yaml
 
@@ -148,7 +144,7 @@ Configuration of policy.json file
           # Add key without value to remove line from policy.json
           'compute:create:attach_network':
 
-Enable Barbican integration
+Enable Barbican integration:
 
 .. code-block:: yaml
 
@@ -160,7 +156,8 @@ Enable Barbican integration
 
 Enable cells update:
 
-**Note:** Useful when upgrading Openstack. To update cells to test sync db agains duplicated production database.
+.. note:: Useful when upgrading Openstack. To update cells to test
+   sync db agains duplicated production database.
 
 .. code-block:: yaml
 
@@ -172,83 +169,78 @@ Enable cells update:
 Configuring TLS communications
 ------------------------------
 
-
-**Note:** by default system wide installed CA certs are used, so ``cacert_file`` param is optional, as well as ``cacert``.
-
-
+.. note:: By default system wide installed CA certs are used,
+   so ``cacert_file`` param is optional, as well as ``cacert``.
 
 - **RabbitMQ TLS**
 
-.. code-block:: yaml
+  .. code-block:: yaml
 
- nova:
-   compute:
-      message_queue:
-        port: 5671
-        ssl:
-          enabled: True
-          (optional) cacert: cert body if the cacert_file does not exists
-          (optional) cacert_file: /etc/openstack/rabbitmq-ca.pem
-          (optional) version: TLSv1_2
-
+   nova:
+     compute:
+        message_queue:
+          port: 5671
+          ssl:
+            enabled: True
+            (optional) cacert: cert body if the cacert_file does not exists
+            (optional) cacert_file: /etc/openstack/rabbitmq-ca.pem
+            (optional) version: TLSv1_2
 
 - **MySQL TLS**
 
-.. code-block:: yaml
+  .. code-block:: yaml
 
- nova:
-   controller:
-      database:
-        ssl:
-          enabled: True
-          (optional) cacert: cert body if the cacert_file does not exists
-          (optional) cacert_file: /etc/openstack/mysql-ca.pem
+   nova:
+     controller:
+        database:
+          ssl:
+            enabled: True
+            (optional) cacert: cert body if the cacert_file does not exists
+            (optional) cacert_file: /etc/openstack/mysql-ca.pem
 
 - **Openstack HTTPS API**
 
+  Set the ``https`` as protocol at ``nova:compute`` and
+  ``nova:controller`` sections :
 
-Set the ``https`` as protocol at ``nova:compute`` and ``nova:controller`` sections :
+  .. code-block:: yaml
 
-.. code-block:: yaml
+   nova:
+     controller :
+        identity:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
+         network:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
+        glance:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
 
- nova:
-   controller :
-      identity:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-      network:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-      glance:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
+  .. code-block:: yaml
 
+   nova:
+     compute:
+        identity:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
+        network:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
+        image:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
+        ironic:
+           protocol: https
+           (optional) cacert_file: /etc/openstack/proxy.pem
 
-.. code-block:: yaml
-
- nova:
-   compute:
-      identity:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-      network:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-      image:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-      ironic:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-
-
-**Note:** the barbican, cinder and placement url endpoints are discovering using service catalog.
-
+.. note:: Barbican, Cinder, and placement url endpoints are discovering
+   using service catalog.
 
 Compute nodes
 -------------
 
-Nova controller services on compute node
+Nova controller services on compute node:
 
 .. code-block:: yaml
 
@@ -328,7 +320,7 @@ manage the same vmware cluster. To achive this pacemaker/corosync or keepalived 
           cluster_name: vmware_cluster01
           host_ip: 1.2.3.4
 
-Group and user to be used for QEMU processes run by the system instance
+Group and user to be used for QEMU processes run by the system instance:
 
 .. code-block:: yaml
 
@@ -341,7 +333,7 @@ Group and user to be used for QEMU processes run by the system instance
           group: cinder
           dynamic_ownership: 1
 
-Group membership for user nova (upgrade related)
+Group membership for user nova (upgrade related):
 
 .. code-block:: yaml
 
@@ -353,7 +345,7 @@ Group membership for user nova (upgrade related)
           groups:
           - libvirt
 
-Nova services on compute node with OpenContrail
+Nova services on compute node with OpenContrail:
 
 .. code-block:: yaml
 
@@ -363,8 +355,7 @@ Nova services on compute node with OpenContrail
         ...
         networking: contrail
 
-
-Nova services on compute node with memcached caching
+Nova services on compute node with memcached caching:
 
 .. code-block:: yaml
 
@@ -380,8 +371,7 @@ Nova services on compute node with memcached caching
           - host: 127.0.0.1
             port: 11211
 
-
-Client-side RabbitMQ HA setup
+Client-side RabbitMQ HA setup:
 
 .. code-block:: yaml
 
@@ -399,7 +389,7 @@ Client-side RabbitMQ HA setup
          virtual_host: '/openstack'
       ....
 
-Nova with ephemeral configured with Ceph
+Nova with ephemeral configured with Ceph:
 
 .. code-block:: yaml
 
@@ -414,7 +404,7 @@ Nova with ephemeral configured with Ceph
           secret_uuid: 03006edd-d957-40a3-ac4c-26cd254b3731
       ....
 
-Nova with ephemeral configured with LVM
+Nova with ephemeral configured with LVM:
 
 .. code-block:: yaml
 
@@ -440,7 +430,7 @@ Nova with ephemeral configured with LVM
               - /dev/sdj
               - /dev/sdh
 
-Enable Barbican integration
+Enable Barbican integration:
 
 .. code-block:: yaml
 
@@ -450,7 +440,7 @@ Enable Barbican integration
         barbican:
           enabled: true
 
-Nova metadata custom bindings
+Nova metadata custom bindings:
 
 .. code-block:: yaml
 
@@ -463,11 +453,10 @@ Nova metadata custom bindings
             address: 1.2.3.4
             port: 8776
 
-
 Client role
 -----------
 
-Nova configured with NFS
+Nova configured with NFS:
 
 .. code-block:: yaml
 
@@ -486,7 +475,7 @@ Nova configured with NFS
             file_system: nfs
             opts: rw,vers=3
 
-Nova flavors
+Nova flavors:
 
 .. code-block:: yaml
 
@@ -510,8 +499,7 @@ Nova flavors
           flavor:
             ...
 
-
-Availability zones
+Availability zones:
 
 .. code-block:: yaml
 
@@ -524,9 +512,7 @@ Availability zones
             - availability_zone_01
             - availability_zone_02
 
-
-
-Aggregates
+Aggregates:
 
 .. code-block:: yaml
 
@@ -539,7 +525,7 @@ Aggregates
             - aggregate1
             - aggregate2
 
-Upgrade levels
+Upgrade levels:
 
 .. code-block:: yaml
 
@@ -556,7 +542,8 @@ Upgrade levels
 SR-IOV
 ------
 
-Add PciPassthroughFilter into scheduler filters and NICs on specific compute nodes.
+Add ``PciPassthroughFilter`` into scheduler filters and NICs on
+specific compute nodes:
 
 .. code-block:: yaml
 
@@ -575,8 +562,8 @@ Add PciPassthroughFilter into scheduler filters and NICs on specific compute nod
 CPU pinning & Hugepages
 -----------------------
 
-CPU pinning of virtual machine instances to dedicated physical CPU cores.
-Hugepages mount point for libvirt.
+CPU pinning of virtual machine instances to dedicated physical
+CPU cores. Hugepages mount point for libvirt.
 
 .. code-block:: yaml
 
@@ -595,7 +582,8 @@ Hugepages mount point for libvirt.
 Custom Scheduler filters
 ------------------------
 
-If you have a custom filter, that needs to be included in the scheduler, then you can include it like so:
+If you have a custom filter, that needs to be included in the
+scheduler, then you can include it like so:
 
 .. code-block:: yaml
 
@@ -610,7 +598,8 @@ If you have a custom filter, that needs to be included in the scheduler, then yo
 Hardware Trip/Unmap Support
 ---------------------------
 
-To enable TRIM support for ephemeral images (thru nova managed images), libvirt has this option.
+To enable TRIM support for ephemeral images (thru nova managed
+images), libvirt has this option:
 
 .. code-block:: yaml
 
@@ -619,13 +608,13 @@ To enable TRIM support for ephemeral images (thru nova managed images), libvirt 
       libvirt:
         hw_disk_discard: unmap
 
-In order to actually utilize this feature, the following metadata must be set on the image as well, so the SCSI unmap is supported.
+To actually utilize this feature, the following metadata must be
+set on the image as well, so the SCSI unmap is supported:
 
 .. code-block:: bash
 
   glance image-update --property hw_scsi_model=virtio-scsi <image>
   glance image-update --property hw_disk_bus=scsi <image>
-
 
 Scheduler Host Manager
 ----------------------
@@ -635,10 +624,9 @@ Specify a custom host manager.
 libvirt CPU mode
 ----------------
 
-Allow setting the model of CPU that is exposed to a VM. This allows better
-support live migration between hypervisors with different hardware, among other
-things. Defaults to host-passthrough.
-
+Allow setting the model of CPU that is exposed to a VM. This
+allows for better support live migration between hypervisors with
+different hardware, among other things. Defaults to host-passthrough.
 
 .. code-block:: yaml
 
@@ -664,21 +652,22 @@ Nova compute cpu model
 Nova compute workarounds
 ------------------------
 
-Live snapshotting is disabled by default in nova. To enable this, it needs a manual switch.
+Live snapshotting is disabled by default in nova. To enable
+this, it needs a manual switch.
 
 From manual:
 
 .. code-block:: yaml
 
-  # When using libvirt 1.2.2 live snapshots fail intermittently under load
-  # (likely related to concurrent libvirt/qemu operations). This config
-  # option provides a mechanism to disable live snapshot, in favor of cold
-  # snapshot, while this is resolved. Cold snapshot causes an instance
-  # outage while the guest is going through the snapshotting process.
-  #
-  # For more information, refer to the bug report:
-  #
-  #   https://bugs.launchpad.net/nova/+bug/1334398
+  When using libvirt 1.2.2 live snapshots fail intermittently under load
+  (likely related to concurrent libvirt/qemu operations). This config
+  option provides a mechanism to disable live snapshot, in favor of cold
+  snapshot, while this is resolved. Cold snapshot causes an instance
+  outage while the guest is going through the snapshotting process.
+
+  For more information, refer to the bug report:
+
+  https://bugs.launchpad.net/nova/+bug/1334398
 
 Configurable pillar data:
 
@@ -692,7 +681,8 @@ Configurable pillar data:
 Config drive options
 --------------------
 
-See example below on how to configure the options for the config drive.
+See example below on how to configure the options for the
+config drive:
 
 .. code-block:: yaml
 
@@ -707,20 +697,23 @@ See example below on how to configure the options for the config drive.
 Number of concurrent live migrates
 ----------------------------------
 
-Default is to have no concurrent live migrations (so 1 live-migration at a time).
+Default is to have no concurrent live migrations (so 1
+live-migration at a time).
 
-Excerpt from config options page (https://docs.openstack.org/ocata/config-reference/compute/config-options.html):
+Excerpt from config options page
+https://docs.openstack.org/ocata/config-reference/compute/config-options.html:
 
-  Maximum number of live migrations to run concurrently. This limit is
-  enforced to avoid outbound live migrations overwhelming the host/network
-  and causing failures. It is not recommended that you change this unless
-  you are very sure that doing so is safe and stable in your environment.
+Maximum number of live migrations to run concurrently. This limit is
+enforced to avoid outbound live migrations overwhelming the host/network
+and causing failures. It is not recommended that you change this unless
+you are very sure that doing so is safe and stable in your environment.
 
-  Possible values:
+Possible values:
 
-  - 0 : treated as unlimited.
-  - Negative value defaults to 0.
-  - Any positive integer representing maximum number of live migrations to run concurrently.
+- 0 : treated as unlimited.
+- Negative value defaults to 0.
+- Any positive integer representing maximum number of live migrations
+  to run concurrently.
 
 To configure this option:
 
@@ -733,8 +726,9 @@ To configure this option:
 Live migration with auto converge
 ----------------------------------
 
-Auto converge throttles down CPU if a progress of on-going live migration is slow.
-https://docs.openstack.org/ocata/config-reference/compute/config-options.html
+Auto converge throttles down CPU if a progress of on-going live
+migration is slow
+https://docs.openstack.org/ocata/config-reference/compute/config-options.html:
 
 .. code-block:: yaml
 
@@ -753,14 +747,21 @@ https://docs.openstack.org/ocata/config-reference/compute/config-options.html
 Enhanced logging with logging.conf
 ----------------------------------
 
-By default logging.conf is disabled.
+By default ``logging.conf`` is disabled.
 
 That is possible to enable per-binary logging.conf with new variables:
-  * openstack_log_appender - set it to true to enable log_config_append for all OpenStack services;
-  * openstack_fluentd_handler_enabled - set to true to enable FluentHandler for all Openstack services.
-  * openstack_ossyslog_handler_enabled - set to true to enable OSSysLogHandler for all Openstack services.
 
-Only WatchedFileHandler, OSSysLogHandler and FluentHandler are available.
+* ``openstack_log_appender``
+   Set to true to enable log_config_append for all OpenStack services
+
+* ``openstack_fluentd_handler_enabled``
+   Set to true to enable FluentHandler for all Openstack services
+
+* ``openstack_ossyslog_handler_enabled``
+   Set to true to enable OSSysLogHandler for all Openstack services
+
+Only ``WatchedFileHandler``, ``OSSysLogHandler``, and ``FluentHandler``
+are available.
 
 Also it is possible to configure this with pillar:
 
@@ -811,8 +812,11 @@ following pillar structure:
 Configure syslog parameters for libvirtd
 ----------------------------------------
 
-To configure syslog parameters for libvirtd the below pillar structure should be used with values which are supported
+To configure syslog parameters for libvirtd the below pillar
+structure should be used with values which are supported
 by libvirtd. These values might be known from the documentation.
+
+.. code-block:: yaml
 
  nova:
    compute:
@@ -823,125 +827,143 @@ by libvirtd. These values might be known from the documentation.
          outputs: '3:syslog:libvirtd'
          buffer_size: 64
 
-#################################################################
-#
-# Logging controls
-#
+Logging controls:
 
-# Logging level: 4 errors, 3 warnings, 2 information, 1 debug
-# basically 1 will log everything possible
-#log_level = 3
+Logging level: 4 errors, 3 warnings, 2 information, 1 debug
+basically 1 will log everything possible ``log_level = 3``
 
-# Logging filters:
-# A filter allows to select a different logging level for a given category
-# of logs
-# The format for a filter is one of:
-#    x:name
-#    x:+name
-#      where name is a string which is matched against source file name,
-#      e.g., "remote", "qemu", or "util/json", the optional "+" prefix
-#      tells libvirt to log stack trace for each message matching name,
-#      and x is the minimal level where matching messages should be logged:
-#    1: DEBUG
-#    2: INFO
-#    3: WARNING
-#    4: ERROR
-#
-# Multiple filter can be defined in a single @filters, they just need to be
-# separated by spaces.
-#
-# e.g. to only get warning or errors from the remote layer and only errors
-# from the event layer:
-#log_filters="3:remote 4:event"
+Logging filters:
 
-# Logging outputs:
-# An output is one of the places to save logging information
-# The format for an output can be:
-#    x:stderr
-#      output goes to stderr
-#    x:syslog:name
-#      use syslog for the output and use the given name as the ident
-#    x:file:file_path
-#      output to a file, with the given filepath
-# In all case the x prefix is the minimal level, acting as a filter
-#    1: DEBUG
-#    2: INFO
-#    3: WARNING
-#    4: ERROR
-#
-# Multiple output can be defined, they just need to be separated by spaces.
-# e.g. to log all warnings and errors to syslog under the libvirtd ident:
-#log_outputs="3:syslog:libvirtd"
-#
+A filter allows to select a different logging level for a given category
+of logs.
 
-# Log debug buffer size: default 64
-# The daemon keeps an internal debug log buffer which will be dumped in case
-# of crash or upon receiving a SIGUSR2 signal. This setting allows to override
-# the default buffer size in kilobytes.
-# If value is 0 or less the debug log buffer is deactivated
-#log_buffer_size = 64
+The format for a filter is one of:
 
-To configure logging parameters for qemu the below pillar structure and logging parameters should be used:
+* ``x:name``
+* ``x:+name``
+   where name is a string which is matched against source file name,
+   e.g., ``remote``, ``qemu``, or ``util/json``, the optional ``+`` prefix
+   tells libvirt to log stack trace for each message matching name,
+   and x is the minimal level where matching messages should be logged:
 
- nova:
-   compute:
-      qemu:
-        logging:
-          handler: logd
-      virtlog:
-        enabled: true
-        level: 4
-        filters: '3:remote 3:event'
-        outputs: '4:syslog:virtlogd'
-        max_clients: 512
-        max_size: 2097100
-        max_backups: 2
+* ``1: DEBUG``
+* ``2: INFO``
+* ``3: WARNING``
+* ``4: ERROR``
+
+Multiple filter can be defined in a single @filters, they just
+need to be separated by spaces.
+
+For example, to only get warning or errors from the remote layer
+and only errors from the event layer: ``log_filters="3:remote 4:event``
+
+Logging outputs:
+
+An output is one of the places to save logging information
+The format for an output can be:
+
+* ``x:stderr``
+   Output goes to stderr
+
+* ``x:syslog:name``
+   Use syslog for the output and use the given name as the ident
+
+* ``x:file:file_path``
+   output to a file, with the given filepath
+
+   In all case the x prefix is the minimal level, acting as a filter
+
+* ``1: DEBUG``
+* ``2: INFO``
+* ``3: WARNING``
+* ``4: ERROR``
+
+Multiple output can be defined, they just need to be separated by spaces.
+For example, to log all warnings and errors to syslog under the libvirt
+dident: ``log_outputs="3:syslog:libvirtd``
+
+Log debug buffer size: default 64
+The daemon keeps an internal debug log buffer which will be dumped
+in case of crash or upon receiving a ``SIGUSR2`` signal. This setting
+allows to override the default buffer size in kilobytes.
+If value is ``0`` or less the debug log buffer is deactivated
+``log_buffer_size = 64``
+
+To configure the logging parameters for QEMU, the below pillar
+structure and logging parameters should be used:
+
+.. code-block:: yaml
+
+   nova:
+     compute:
+        qemu:
+          logging:
+            handler: logd
+        virtlog:
+          enabled: true
+          level: 4
+          filters: '3:remote 3:event'
+          outputs: '4:syslog:virtlogd'
+          max_clients: 512
+          max_size: 2097100
+          max_backups: 2
 
 Inject password to VM
 ---------------------
 
-By default nova blocks up any inject to VM because 'inject_partition' param is equal '-2'
-If you want to inject password to VM, you will need to define 'inject_partition' greater or equal to '-1' and define 'inject_password' to 'True'
+By default nova blocks up any inject to VM because
+``inject_partition`` param is equal to ``-2``.
+If you want to inject password to VM, you will need to
+define ``inject_partition`` greater or equal to ``-1`` and
+define ``inject_password`` to ``True``
 
 For example:
+
+.. code-block:: yaml
 
   nova:
     compute:
       inject_partition: '-1'
       inject_password: True
 
-# Allow the injection of an admin password for instance only at ``create`` and
-# ``rebuild`` process.
-#
-# There is no agent needed within the image to do this. If *libguestfs* is
-# available on the host, it will be used. Otherwise *nbd* is used. The file
-# system of the image will be mounted and the admin password, which is provided
-# in the REST API call will be injected as password for the root user. If no
-# root user is available, the instance won't be launched and an error is thrown.
-# Be aware that the injection is *not* possible when the instance gets launched
-# from a volume.
-#
-# Possible values:
-#
-# * True: Allows the injection.
-# * False (default): Disallows the injection. Any via the REST API provided
-# admin password will be silently ignored.
-#
-# Related options:
-#
-# * ``inject_partition``: That option will decide about the discovery and usage
-#   of the file system. It also can disable the injection at all.
-#  (boolean value)
+Allow the injection of an admin password for instance only at
+``create`` and ``rebuild`` process.
+
+There is no agent needed within the image to do this. If *libguestfs* is
+available on the host, it will be used. Otherwise *nbd* is used. The file
+system of the image will be mounted and the admin password, which is provided
+in the REST API call will be injected as password for the root user. If no
+root user is available, the instance won't be launched and an error is thrown.
+Be aware that the injection is *not* possible when the instance gets launched
+from a volume.
+
+Possible values:
+
+* ``True``
+   Allows the injection
+
+* ``False`` (default)
+   Disallows the injection. Any via the REST API provided
+   admin password will be silently ignored.
+
+Related options:
+
+* ``inject_partition``
+   Decides about the discovery and usage of the file system.
+   It also can disable the injection at all.
+   (boolean value)
 
 You can read more about injecting the administrator password here:
-    https://docs.openstack.org/nova/queens/admin/admin-password-injection.html
+https://docs.openstack.org/nova/queens/admin/admin-password-injection.html
 
 Enable libvirt control channel over TLS
----------------------
+---------------------------------------
 
 By default TLS is disabled.
 
-Enable TLS transport.
+Enable TLS transport:
+
+.. code-block:: yaml
 
   compute:
     libvirt:
@@ -949,6 +971,8 @@ Enable TLS transport.
         enabled: True
 
 You able to set custom certificates in pillar:
+
+.. code-block:: yaml
 
   nova:
     compute:
@@ -962,7 +986,7 @@ You able to set custom certificates in pillar:
             cert: (certificate content)
 
 You can read more about live migration over TLS here:
-    https://wiki.libvirt.org/page/TLSCreateServerCerts
+https://wiki.libvirt.org/page/TLSCreateServerCerts
 
 Enable transport + authentication for VNC over TLS
 ---------------------
@@ -1038,32 +1062,25 @@ You can read more about it here:
 Documentation and Bugs
 ======================
 
-To learn how to install and update salt-formulas, consult the documentation
-available online at:
+* http://salt-formulas.readthedocs.io/
+   Learn how to install and update salt-formulas
 
-    http://salt-formulas.readthedocs.io/
+* https://github.com/salt-formulas/salt-formula-nova/issues
+   In the unfortunate event that bugs are discovered, report the issue to the
+   appropriate issue tracker. Use the Github issue tracker for a specific salt
+   formula
 
-In the unfortunate event that bugs are discovered, they should be reported to
-the appropriate issue tracker. Use Github issue tracker for specific salt
-formula:
+* https://launchpad.net/salt-formulas
+   For feature requests, bug reports, or blueprints affecting the entire
+   ecosystem, use the Launchpad salt-formulas project
 
-    https://github.com/salt-formulas/salt-formula-nova/issues
+* https://launchpad.net/~salt-formulas-users
+   Join the salt-formulas-users team and subscribe to mailing list if required
 
-For feature requests, bug reports or blueprints affecting entire ecosystem,
-use Launchpad salt-formulas project:
+* https://github.com/salt-formulas/salt-formula-nova
+   Develop the salt-formulas projects in the master branch and then submit pull
+   requests against a specific formula
 
-    https://launchpad.net/salt-formulas
-
-You can also join salt-formulas-users team and subscribe to mailing list:
-
-    https://launchpad.net/~salt-formulas-users
-
-Developers wishing to work on the salt-formulas projects should always base
-their work on master branch and submit pull request against specific formula.
-
-    https://github.com/salt-formulas/salt-formula-nova
-
-Any questions or feedback is always welcome so feel free to join our IRC
-channel:
-
-    #salt-formulas @ irc.freenode.net
+* #salt-formulas @ irc.freenode.net
+   Use this IRC channel in case of any questions or feedback which is always
+   welcome
