@@ -31,9 +31,18 @@ doc:
           name: "Image service"
           value: {{ compute.image.host }}:{{ compute.image.port }}
         {%- endif %}
+        {%- set rabbit_port = compute.message_queue.get('port', 5671 if compute.message_queue.get('ssl',{}).get('enabled', False)  else 5672) %}
         message_queue_ip:
           name: "Message queue"
-          value: {{ compute.message_queue.user }}@{{ compute.message_queue.host }}:{{ compute.message_queue.port }}{{ compute.message_queue.virtual_host }}
+          {%- if compute.message_queue.members is defined %}
+          value: {% for member in compute.message_queue.members -%}
+                 {{ compute.message_queue.user }}:{{ compute.message_queue.password }}@{{ member.host }}:{{ member.get('port',rabbit_port) }}
+                 {%- if not loop.last -%},{%- endif -%}
+                 {%- endfor -%}
+                 /{{ compute.message_queue.virtual_host }}
+          {%- else %}
+          value:  {{ compute.message_queue.user }}:{{ compute.message_queue.password }}@{{ compute.message_queue.host }}:{{ rabbit_port }}/{{ compute.message_queue.virtual_host }}
+          {%- endif %}
         identity_host:
           name: "Identity host ip"
           value: {{ compute.identity.user }}@{{ compute.identity.host }}:{{ compute.identity.port }}
@@ -110,9 +119,18 @@ doc:
         glance_host:
           name: "Glance service"
           value: {{ controller.glance.host }}:{{ controller.glance.port }}
+        {%- set rabbit_port = controller.message_queue.get('port', 5671 if controller.message_queue.get('ssl',{}).get('enabled', False)  else 5672) %}
         message_queue_ip:
           name: "Message queue"
-          value: {{ controller.message_queue.user }}@{{ controller.message_queue.host }}:{{ controller.message_queue.port }}{{ controller.message_queue.virtual_host }}
+          {%- if controller.message_queue.members is defined %}
+          value: {% for member in controller.message_queue.members -%}
+                 {{ controller.message_queue.user }}:{{ controller.message_queue.password }}@{{ member.host }}:{{ member.get('port',rabbit_port) }}
+                 {%- if not loop.last -%},{%- endif -%}
+                 {%- endfor -%}
+                 /{{ controller.message_queue.virtual_host }}
+          {%- else %}
+          value:  {{ controller.message_queue.user }}:{{ controller.message_queue.password }}@{{ controller.message_queue.host }}:{{ rabbit_port }}/{{ controller.message_queue.virtual_host }}
+          {%- endif %}
         identity_host:
           name: "Identity host ip"
           value: {{ controller.identity.user }}@{{ controller.identity.host }}:{{ controller.identity.port }}
