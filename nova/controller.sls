@@ -1,16 +1,21 @@
 {% from "nova/map.jinja" import controller with context %}
 
+{%- set mysql_x509_ssl_enabled = controller.database.get('x509',{}).get('enabled',False) or controller.database.get('ssl',{}).get('enabled',False) %}
+
 {%- if controller.get('enabled') %}
 
 include:
 {#- Always include apache when horizon/apache formulas doesn't intersect #}
-{%- if pillar.get('apache', {}).get('server', {}).get('site', {}).nova_placement is defined %}
- - apache
-{%- endif %}
- - nova.db.offline_sync
- # TODO(vsaienko) we need to run online dbsync only once after upgrade
- # Move to appropriate upgrade phase
- - nova.db.online_sync
+  {%- if pillar.get('apache', {}).get('server', {}).get('site', {}).nova_placement is defined %}
+  - apache
+  {%- endif %}
+  - nova.db.offline_sync
+  # TODO(vsaienko) we need to run online dbsync only once after upgrade
+  # Move to appropriate upgrade phase
+  - nova.db.online_sync
+  {%- if mysql_x509_ssl_enabled %}
+  - nova._ssl.mysql
+  {%- endif %}
 
 {%- if grains.os_family == 'Debian' %}
 debconf-set-prerequisite:
@@ -449,16 +454,15 @@ nova_apache_restart:
   {%- endif %}
   - require:
     - sls: nova.db.offline_sync
+    {%- if mysql_x509_ssl_enabled %}
+    - sls: nova._ssl.mysql
+    {%- endif %}
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
     - nova_placement_apache_conf_file
-    {%- if controller.database.get('ssl',{}).get('enabled',False)  %}
-    - file: mysql_ca_nova_controller
-    {% endif %}
 
 {%- endif %}
-
 nova_controller_services:
   service.running:
   - enable: true
@@ -470,15 +474,15 @@ nova_controller_services:
     - sls: nova.db.offline_sync
   - require_in:
     - sls: nova.db.online_sync
+    {%- if mysql_x509_ssl_enabled %}
+    - sls: nova._ssl.mysql
+    {%- endif %}
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
     {%- if controller.message_queue.get('ssl',{}).get('enabled',False) %}
     - file: rabbitmq_ca_nova_controller
     {%- endif %}
-    {%- if controller.database.get('ssl',{}).get('enabled',False)  %}
-    - file: mysql_ca_nova_controller
-    {% endif %}
 
 {%- if grains.get('virtual_subtype', None) == "Docker" %}
 
@@ -489,24 +493,6 @@ nova_entrypoint:
   - source: salt://nova/files/entrypoint.sh
   - mode: 755
 
-{%- endif %}
-
-{%- if controller.database.get('ssl',{}).get('enabled',False)  %}
-mysql_ca_nova_controller:
-{%- if controller.database.ssl.cacert is defined %}
-  file.managed:
-    - name: {{ controller.database.ssl.cacert_file }}
-    - contents_pillar: nova:controller:database:ssl:cacert
-    - mode: 0444
-    - makedirs: true
-    - require_in:
-      - file: /etc/nova/nova.conf
-{%- else %}
-  file.exists:
-   - name: {{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}
-   - require_in:
-     - file: /etc/nova/nova.conf
-{%- endif %}
 {%- endif %}
 
 {%- endif %}

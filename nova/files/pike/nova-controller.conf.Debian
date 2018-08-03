@@ -1,6 +1,13 @@
 {%- from "nova/map.jinja" import controller,compute_driver_mapping with context %}
-[DEFAULT]
 
+{%- set connection_x509_ssl_option = '' %}
+{%- if controller.database.get('x509',{}).get('enabled',False) %}
+  {%- set connection_x509_ssl_option = '&ssl_ca=' ~ controller.database.x509.get('ca_file') ~ '&ssl_cert=' ~ controller.database.x509.get('cert_file') ~ '&ssl_key=' ~ controller.database.x509.get('key_file') %}
+{%- elif controller.database.get('ssl',{}).get('enabled',False) %}
+  {%- set connection_x509_ssl_option = '&ssl_ca=' ~ controller.database.ssl.get('cacert_file', controller.cacert_file) %}
+{%- endif %}
+
+[DEFAULT]
 #
 # From nova.conf
 #
@@ -3438,7 +3445,7 @@ db_max_retries = 3
 db_retry_interval = 1
 connection_debug = 10
 pool_timeout = 120
-connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}_api?charset=utf8{%- if controller.database.get('ssl',{}).get('enabled',False) %}&ssl_ca={{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}{% endif %}
+connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}_api?charset=utf8{{ connection_x509_ssl_option }}
 
 # The SQLAlchemy connection string to use to connect to the database. (string
 # value)
@@ -4487,7 +4494,7 @@ db_max_retries = 3
 db_retry_interval = 1
 connection_debug = 10
 pool_timeout = 120
-connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}?charset=utf8{%- if controller.database.get('ssl',{}).get('enabled',False) %}&ssl_ca={{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}{% endif %}
+connection = {{ controller.database.engine }}+pymysql://{{ controller.database.user }}:{{ controller.database.password }}@{{ controller.database.host }}/{{ controller.database.name }}?charset=utf8{{ connection_x509_ssl_option }}
 
 # If True, SQLite uses synchronous mode. (boolean value)
 # Deprecated group/name - [DEFAULT]/sqlite_synchronous
