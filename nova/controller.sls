@@ -2,6 +2,16 @@
 
 {%- if controller.get('enabled') %}
 
+include:
+{#- Always include apache when horizon/apache formulas doesn't intersect #}
+{%- if pillar.get('apache', {}).get('server', {}).get('site', {}).nova_placement is defined %}
+ - apache
+{%- endif %}
+ - nova.db.offline_sync
+ # TODO(vsaienko) we need to run online dbsync only once after upgrade
+ # Move to appropriate upgrade phase
+ - nova.db.online_sync
+
 {%- if grains.os_family == 'Debian' %}
 debconf-set-prerequisite:
     pkg.installed:
@@ -159,6 +169,9 @@ contrail_nova_packages:
   - template: jinja
   - require:
     - pkg: nova_controller_packages
+  - require_in:
+    - sls: nova.db.offline_sync
+    - sls: nova.db.online_sync
 
 /etc/nova/api-paste.ini:
   file.managed:
@@ -293,41 +306,6 @@ nova_keystone_rule_{{ name }}_absent:
 
 {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
 
-{#- the following api_db sync --version 20 happens only if the current api_db version is < 20 #}
-
-nova_controller_api_db_sync_version_20:
-  novang.api_db_version_present:
-  - version: "20"
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/nova/nova.conf
-
-{#- the following db sync --version 334 happens only if the current db version is < 334 #}
-
-nova_controller_db_sync_version_334:
-  novang.db_version_present:
-  - version: "334"
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/nova/nova.conf
-
-{#- the following db online_data_migrations executes only if the current db version == 334 && api_db version == 20 #}
-
-online_data_migrations_for_apidb20_and_db334:
-  novang.online_data_migrations_present:
-  - api_db_version: "20"
-  - db_version: "334"
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - novang: nova_controller_api_db_sync_version_20
-    - novang: nova_controller_db_sync_version_334
-
 nova_controller_map_cell0:
   cmd.run:
   - name: nova-manage cell_v2 map_cell0
@@ -335,7 +313,7 @@ nova_controller_map_cell0:
   - onlyif: /bin/false
   {%- endif %}
   - require:
-    - cmd: nova_controller_syncdb
+    - sls: nova.db.offline_sync
 
 nova_cell1_create:
   cmd.run:
@@ -345,7 +323,7 @@ nova_cell1_create:
   {%- endif %}
   - unless: 'nova-manage cell_v2 list_cells | grep cell1'
   - require:
-    - cmd: nova_controller_syncdb
+    - sls: nova.db.offline_sync
 
 {%- if controller.get('update_cells') %}
 
@@ -417,9 +395,6 @@ placement_config:
 
 {%- else %}
 
-include:
- - apache
-
 nova_cleanup_configs:
   file.absent:
     - names:
@@ -450,7 +425,6 @@ nova_controller_discover_hosts:
   - require:
     - cmd: nova_controller_map_cell0
     - cmd: nova_cell1_create
-    - cmd: nova_controller_syncdb
 
 nova_controller_map_instances:
   novang.map_instances:
@@ -464,41 +438,6 @@ nova_controller_map_instances:
 
 {%- endif %}
 
-{%- if controller.version not in ["juno", "kilo", "liberty"] %}
-nova_controller_sync_apidb:
-  cmd.run:
-  - name: nova-manage api_db sync
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/nova/nova.conf
-
-{%- endif %}
-
-nova_controller_syncdb:
-  cmd.run:
-  - names:
-    - nova-manage db sync
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/nova/nova.conf
-
-{%- if controller.version not in ["juno", "kilo", "liberty"] %}
-
-nova_controller_online_data_migrations:
-  cmd.run:
-  - name: nova-manage db online_data_migrations
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - cmd: nova_controller_syncdb
-
-{%- endif %}
-
 {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
 
 nova_apache_restart:
@@ -509,7 +448,7 @@ nova_apache_restart:
   - onlyif: /bin/false
   {%- endif %}
   - require:
-    - cmd: nova_controller_syncdb
+    - sls: nova.db.offline_sync
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
@@ -528,7 +467,9 @@ nova_controller_services:
   - onlyif: /bin/false
   {%- endif %}
   - require:
-    - cmd: nova_controller_syncdb
+    - sls: nova.db.offline_sync
+  - require_in:
+    - sls: nova.db.online_sync
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
