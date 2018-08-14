@@ -19,7 +19,7 @@
 
 {%- if grains.os_family == "Debian" %}
 {%- set pkgs_list = [ 'nova-common', 'nova-consoleproxy', 'novnc', 'nova-api', 'nova-conductor', 'nova-consoleauth', 'nova-doc', 'nova-scheduler', 'python-novaclient', 'python-memcache', 'gettext-base', 'python-pycadf'] %}
-{%- set services_list = ['nova-api', 'nova-consoleauth', 'nova-scheduler', 'nova-conductor', 'nova-novncproxy'] %}
+{%- set services_list = ['nova-conductor', 'nova-api', 'nova-consoleauth', 'nova-scheduler', 'nova-novncproxy'] %}
 {%- if pillar.nova.controller is defined and pillar.nova.controller.get('version',{}) in ["juno", "kilo", "liberty", "mitaka"] %}
 {%- do pkgs_list.append('nova-cert') %}
 {%- do services_list.append('nova-cert') %}
@@ -28,7 +28,7 @@
 
 {%- if grains.os_family == "RedHat" %}
 {%- set pkgs_list = ['openstack-nova-novncproxy', 'python-nova', 'openstack-nova-api', 'openstack-nova-console', 'openstack-nova-scheduler', 'python-novaclient', 'openstack-nova-common', 'openstack-nova-conductor', 'python-pycadf'] %}
-{%- set services_list = ['openstack-nova-api', 'openstack-nova-consoleauth', 'openstack-nova-scheduler', 'openstack-nova-conductor', 'openstack-nova-novncproxy'] %}
+{%- set services_list = ['openstack-nova-conductor', 'openstack-nova-api', 'openstack-nova-consoleauth', 'openstack-nova-scheduler', 'openstack-nova-novncproxy'] %}
 {%- if pillar.nova.controller is defined and pillar.nova.controller.get('version',{}) in ["juno", "kilo", "liberty", "mitaka", "newton", "ocata"] %}
 {%- do pkgs_list.append('openstack-nova-cert') %}
 {%- do services_list.append('openstack-nova-cert') %}
@@ -110,6 +110,40 @@
         },
     },
 }, merge=pillar.nova.get('controller', {}), base='BaseDefaults') %}
+
+{% set upgrade = pillar.get('nova', {}).get('upgrade', {}) %}
+{% set pin_level = 'auto' %}
+
+{% set upgrade_levels = salt['grains.filter_by']({
+    'Debian': {
+        'upgrade_levels': {
+          'compute': pin_level,
+          'cells': pin_level,
+          'intercell': pin_level,
+          'cert': pin_level,
+          'scheduler': pin_level,
+          'conductor': pin_level,
+          'console': pin_level,
+          'consoleauth': pin_level,
+          'network': pin_level,
+          'baseapi': pin_level,
+        },
+     },
+    'RedHat': {
+        'upgrade_levels': {
+          'compute': pin_level,
+          'cells': pin_level,
+          'intercell': pin_level,
+          'cert': pin_level,
+          'scheduler': pin_level,
+          'conductor': pin_level,
+          'console': pin_level,
+          'consoleauth': pin_level,
+          'network': pin_level,
+          'baseapi': pin_level,
+        },
+    },
+}) %}
 
 {% set client = salt['grains.filter_by']({
     'Debian': {
@@ -250,6 +284,11 @@ RedHat:
 {%- endload %}
 {% set compute = salt["grains.filter_by"](compute_defaults, merge=pillar.nova.get("compute", {}), base='BaseDefaults') %}
 
+{%- if pillar.nova.get('upgrade',{}).get('upgrade_enabled',False) %}
+  {% do compute.update(upgrade_levels) %}
+  {% do controller.update(upgrade_levels) %}
+{%- endif %}
+
 {% set monitoring = salt['grains.filter_by']({
     'default': {
         'disk': {
@@ -272,3 +311,4 @@ RedHat:
         'endpoint_failed_major_threshold': 0.5,
     },
 }, grain='os_family', merge=salt['pillar.get']('nova:monitoring')) %}
+

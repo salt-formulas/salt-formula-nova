@@ -9,3 +9,8 @@ orchestrate:
     require:
     - salt: keystone.server
 
+orchestration:
+  upgrade:
+    applications:
+      nova:
+        priority: 1100

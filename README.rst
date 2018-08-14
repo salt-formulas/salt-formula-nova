@@ -1081,6 +1081,65 @@ nova:
 You can read more about it here:
     https://docs.openstack.org/security-guide/databases/database-access-control.html
 
+Upgrades
+========
+
+Each openstack formula provide set of phases (logical bloks) that will help to
+build flexible upgrade orchestration logic for particular components. The list
+of phases might and theirs descriptions are listed in table below:
+
++-------------------------------+------------------------------------------------------+
+| State                         | Description                                          |
++===============================+======================================================+
+| <app>.upgrade.service_running | Ensure that all services for particular application  |
+|                               | are enabled for autostart and running                |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.service_stopped | Ensure that all services for particular application  |
+|                               | disabled for autostart and dead                      |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.pkgs_latest     | Ensure that packages used by particular application  |
+|                               | are installed to latest available version.           |
+|                               | This will not upgrade data plane packages like qemu  |
+|                               | and openvswitch as usually minimal required version  |
+|                               | in openstack services is really old. The data plane  |
+|                               | packages should be upgraded separately by `apt-get   |
+|                               | upgrade` or `apt-get dist-upgrade`                   |
+|                               | Applying this state will not autostart service.      |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.render_config   | Ensure configuration is rendered actual version.     +
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.pre             | We assume this state is applied on all nodes in the  |
+|                               | cloud before running upgrade.                        |
+|                               | Only non destructive actions will be applied during  |
+|                               | this phase. Perform service built in service check   |
+|                               | like (keystone-manage doctor and nova-status upgrade)|
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.upgrade.pre     | Mostly applicable for data plane nodes. During this  |
+|                               | phase resources will be gracefully removed from      |
+|                               | current node if it is allowed. Services for upgraded |
+|                               | application will be set to admin disabled state to   |
+|                               | make sure node will not participate in resources     |
+|                               | scheduling. For example on gtw nodes this will set   |
+|                               | all agents to admin disable state and will move all  |
+|                               | routers to other agents.                             |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.upgrade         | This state will basically upgrade application on     |
+|                               | particular target. Stop services, render             |
+|                               | configuration, install new packages, run offline     |
+|                               | dbsync (for ctl), start services. Data plane should  |
+|                               | not be affected, only OpenStack python services.     |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.upgrade.post    | Add services back to scheduling.                     |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.post            | This phase should be launched only when upgrade of   |
+|                               | the cloud is completed. Cleanup temporary files,     |
+|                               | perform other post upgrade tasks.                    |
++-------------------------------+------------------------------------------------------+
+| <app>.upgrade.verify          | Here we will do basic health checks (API CRUD        |
+|                               | operations, verify do not have dead network          |
+|                               | agents/compute services)                             |
++-------------------------------+------------------------------------------------------+
+
 Documentation and Bugs
 ======================
 
