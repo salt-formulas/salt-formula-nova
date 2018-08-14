@@ -150,9 +150,6 @@ Debian:
   - qemu-kvm
   - python-guestfs
   - gettext-base
-  {%- if pillar.nova.compute is defined and pillar.nova.compute.get('networking', 'default') == "contrail" and pillar.nova.compute.get('version', 'ocata') not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
-  - contrail-nova-driver
-  {%- endif %}
   services:
   - nova-compute
   libvirt_config: libvirtd.conf
