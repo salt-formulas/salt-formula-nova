@@ -5136,7 +5136,9 @@ api_servers = {{ compute.image.get('protocol', 'http') }}://{{ compute.image.hos
 # * The options in the `key_manager` group, as the key_manager is used
 #   for the signature validation.
 #  (boolean value)
-{%- if compute.get('barbican', {}).get('enabled', False) %}
+{%- if compute.get('image', {}).verify_glance_signatures is defined %}
+verify_glance_signatures={{ compute.image.verify_glance_signatures }}
+{%- elif compute.get('barbican', {}).get('enabled', False) %}
 verify_glance_signatures=true
 {%- else %}
 #verify_glance_signatures=false

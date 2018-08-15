@@ -5446,7 +5446,9 @@ api_servers = {{ compute.image.get('protocol', 'http') }}://{{ compute.image.hos
 # default_trusted_certificate_ids
 #   below depend on this option being enabled.
 #  (boolean value)
-{%- if compute.get('barbican', {}).get('enabled', False) %}
+{%- if compute.get('image', {}).verify_glance_signatures is defined %}
+verify_glance_signatures={{ compute.image.verify_glance_signatures }}
+{%- elif compute.get('barbican', {}).get('enabled', False) %}
 verify_glance_signatures=true
 {%- else %}
 #verify_glance_signatures=false
