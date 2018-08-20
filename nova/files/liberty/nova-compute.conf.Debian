@@ -91,7 +91,9 @@ rabbit_retry_backoff = 2
 
 rpc_cast_timeout = 30
 rpc_conn_pool_size = 300
-rpc_response_timeout = 3600
+{%- if compute.message_queue.rpc_response_timeout is defined %}
+rpc_response_timeout = {{ compute.message_queue.rpc_response_timeout }}
+{%- endif %}
 rpc_thread_pool_size = 70
 report_interval = {{ compute.get('report_interval', '60') }}
 

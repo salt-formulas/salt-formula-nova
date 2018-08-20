@@ -3094,7 +3094,9 @@ executor_thread_pool_size=70
 
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout=60
-rpc_response_timeout = 3600
+{%- if compute.message_queue.rpc_response_timeout is defined %}
+rpc_response_timeout = {{ compute.message_queue.rpc_response_timeout }}
+{%- endif %}
 
 {%- set rabbit_port = compute.message_queue.get('port', 5671 if compute.message_queue.get('ssl',{}).get('enabled', False) else 5672) %}
 

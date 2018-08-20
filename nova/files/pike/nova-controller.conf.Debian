@@ -3062,7 +3062,9 @@ zmq_linger=30
 
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout=60
-rpc_response_timeout=3600
+{%- if controller.message_queue.rpc_response_timeout is defined %}
+rpc_response_timeout = {{ controller.message_queue.rpc_response_timeout }}
+{%- endif %}
 
 {%- set rabbit_port = controller.message_queue.get('port', 5671 if controller.message_queue.get('ssl',{}).get('enabled', False) else 5672) %}
 

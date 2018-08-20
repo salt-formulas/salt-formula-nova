@@ -68,7 +68,9 @@ image_cache_manager_interval = 0
 firewall_driver = nova.virt.firewall.NoopFirewallDriver
 
 rpc_cast_timeout = 30
-rpc_response_timeout = 3600
+{%- if compute.message_queue.rpc_response_timeout is defined %}
+rpc_response_timeout = {{ compute.message_queue.rpc_response_timeout }}
+{%- endif %}
 executor_thread_pool_size = 70
 report_interval = {{ compute.get('report_interval', '60') }}
 
