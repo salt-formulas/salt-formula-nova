@@ -5,8 +5,7 @@
 {%- if controller.get('enabled') %}
 
 include:
-{#- Always include apache when horizon/apache formulas doesn't intersect #}
-  {%- if pillar.get('apache', {}).get('server', {}).get('site', {}).nova_placement is defined %}
+  {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
   - apache
   {%- endif %}
   - nova.db.offline_sync
@@ -461,6 +460,7 @@ nova_apache_restart:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
     - nova_placement_apache_conf_file
+    - placement_config
 
 {%- endif %}
 nova_controller_services:
