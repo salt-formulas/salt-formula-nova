@@ -309,26 +309,6 @@ nova_keystone_rule_{{ name }}_absent:
 {%- endfor %}
 
 {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
-
-nova_controller_map_cell0:
-  cmd.run:
-  - name: nova-manage cell_v2 map_cell0
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - sls: nova.db.offline_sync
-
-nova_cell1_create:
-  cmd.run:
-  - name: nova-manage cell_v2 create_cell --name=cell1 --verbose
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - unless: 'nova-manage cell_v2 list_cells | grep cell1'
-  - require:
-    - sls: nova.db.offline_sync
-
 {%- if controller.get('update_cells') %}
 
 nova_update_cell0:
@@ -427,8 +407,7 @@ nova_controller_discover_hosts:
   - onlyif: /bin/false
   {%- endif %}
   - require:
-    - cmd: nova_controller_map_cell0
-    - cmd: nova_cell1_create
+    - sls: nova.db.offline_sync
 
 nova_controller_map_instances:
   novang.map_instances:
