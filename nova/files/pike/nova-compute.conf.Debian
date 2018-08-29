@@ -761,7 +761,7 @@ max_concurrent_live_migrations = {{ compute.max_concurrent_live_migrations }}
 # * For any value > 0, total attempts are (value + 1)
 #  (integer value)
 #block_device_allocate_retries=60
-block_device_allocate_retries=600
+block_device_allocate_retries={{ compute.get('block_device_allocate_retries', '600') }}
 
 #
 # Number of greenthreads available for use to sync power states.
@@ -965,7 +965,7 @@ heal_instance_info_cache_interval = {{ compute.heal_instance_info_cache_interval
 #  (integer value)
 # Minimum value: 0
 #block_device_allocate_retries_interval=3
-block_device_allocate_retries_interval=10
+block_device_allocate_retries_interval={{ compute.get('block_device_allocate_retries_interval', '10') }}
 
 #
 # Interval between sending the scheduler a list of current instance UUIDs to

@@ -116,8 +116,8 @@ rpc_response_timeout = {{ controller.message_queue.rpc_response_timeout }}
 rpc_thread_pool_size = 70
 report_interval = 5
 
-block_device_allocate_retries=600
-block_device_allocate_retries_interval=10
+block_device_allocate_retries={{ controller.get('block_device_allocate_retries', '600') }}
+block_device_allocate_retries_interval={{ controller.get('block_device_allocate_retries_interval', '10') }}
 
 [oslo_concurrency]
 
