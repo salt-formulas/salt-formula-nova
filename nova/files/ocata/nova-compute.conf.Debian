@@ -6769,7 +6769,9 @@ hw_disk_discard={{ compute.libvirt.hw_disk_discard }}
 # * Any string representing mount options separated by commas.
 # * Example string: vers=3,lookupcache=pos
 #  (string value)
-#nfs_mount_options=<None>
+{%- if compute.nfs_mount_options is defined %}
+nfs_mount_options="{{ compute.nfs_mount_options }}"
+{%- endif %}
 
 #
 # Directory where the Quobyte volume is mounted on the compute node.

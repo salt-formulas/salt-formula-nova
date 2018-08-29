@@ -1,12 +1,13 @@
 nova:
   compute:
-    version: mitaka
+    version: queens
     enabled: true
     heal_instance_info_cache_interval: 60
     vncproxy_url: openstack:6080
     vnc_keymap: en-gb
     resume_guests_state_on_host_boot: False
     preallocate_images: space
+    nfs_mount_options: 'vers=3,lookupcache=pos'
     bind:
       vnc_address: 127.0.0.1
       vnc_port: 6080
