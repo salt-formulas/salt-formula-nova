@@ -50,6 +50,19 @@ user_nova_bash:
     - libvirtd
 {%- endif %}
 
+user_libvirt-qemu:
+  user.present:
+  - name: libvirt-qemu
+  - groups:
+    - nova
+
+/var/lib/nova:
+  file.directory:
+    - user: nova
+    - group: nova
+    - dir_mode: 0750
+    - makedirs: True
+
 /var/lib/nova/.ssh/id_rsa:
   file.managed:
   - user: nova
