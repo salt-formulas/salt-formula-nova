@@ -1,7 +1,5 @@
 {% from "nova/map.jinja" import controller with context %}
 
-{%- set mysql_x509_ssl_enabled = controller.database.get('x509',{}).get('enabled',False) or controller.database.get('ssl',{}).get('enabled',False) %}
-
 {%- if controller.get('enabled') %}
 
 include:
@@ -12,9 +10,7 @@ include:
   # TODO(vsaienko) we need to run online dbsync only once after upgrade
   # Move to appropriate upgrade phase
   - nova.db.online_sync
-  {%- if mysql_x509_ssl_enabled %}
   - nova._ssl.mysql
-  {%- endif %}
 
 {%- if grains.os_family == 'Debian' %}
 debconf-set-prerequisite:
@@ -173,6 +169,7 @@ contrail_nova_packages:
   - template: jinja
   - require:
     - pkg: nova_controller_packages
+    - sls: nova._ssl.mysql
   - require_in:
     - sls: nova.db.offline_sync
     - sls: nova.db.online_sync
@@ -434,9 +431,7 @@ nova_apache_restart:
   {%- endif %}
   - require:
     - sls: nova.db.offline_sync
-    {%- if mysql_x509_ssl_enabled %}
     - sls: nova._ssl.mysql
-    {%- endif %}
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
@@ -453,9 +448,7 @@ nova_controller_services:
   {%- endif %}
   - require:
     - sls: nova.db.offline_sync
-    {%- if mysql_x509_ssl_enabled %}
     - sls: nova._ssl.mysql
-    {%- endif %}
   - require_in:
     - sls: nova.db.online_sync
   - watch:
