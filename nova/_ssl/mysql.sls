@@ -2,9 +2,9 @@
 
 {%- if controller.database.get('x509',{}).get('enabled',False) %}
 
-  {%- set ca_file=controller.database.x509.get('ca_file') %}
-  {%- set key_file=controller.database.x509.get('key_file') %}
-  {%- set cert_file=controller.database.x509.get('cert_file') %}
+  {%- set ca_file=controller.database.x509.ca_file %}
+  {%- set key_file=controller.database.x509.key_file %}
+  {%- set cert_file=controller.database.x509.cert_file %}
 
 mysql_nova_ssl_x509_ca:
   {%- if controller.database.x509.cacert is defined %}

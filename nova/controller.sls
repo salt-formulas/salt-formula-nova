@@ -453,11 +453,11 @@ nova_controller_services:
   {%- endif %}
   - require:
     - sls: nova.db.offline_sync
-  - require_in:
-    - sls: nova.db.online_sync
     {%- if mysql_x509_ssl_enabled %}
     - sls: nova._ssl.mysql
     {%- endif %}
+  - require_in:
+    - sls: nova.db.online_sync
   - watch:
     - file: /etc/nova/nova.conf
     - file: /etc/nova/api-paste.ini
