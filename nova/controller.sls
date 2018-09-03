@@ -216,6 +216,8 @@ nova_general_logging_conf:
     - template: jinja
     - user: nova
     - group: nova
+    - require_in:
+      - sls: nova.db.offline_sync
     - require:
       - pkg: nova_controller_packages
 {%- if controller.logging.log_handlers.get('fluentd').get('enabled', False) %}
