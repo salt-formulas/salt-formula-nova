@@ -34,6 +34,10 @@ dashboard:
     datasource: prometheus
     format: json
     template: nova/files/grafana_dashboards/openstack_overview_prometheus.json
+  openstack_tenants_prometheus:
+    datasource: prometheus
+    format: json
+    template: nova/files/grafana_dashboards/openstack_tenants_prometheus.json
   nova_influxdb:
     datasource: influxdb
     format: json
