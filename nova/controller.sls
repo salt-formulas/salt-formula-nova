@@ -60,6 +60,7 @@ user_nova:
   - system: True
   - require_in:
     - pkg: nova_controller_packages
+    - sls: nova._ssl.mysql
 {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
     - pkg: nova_placement_package
 {%- endif %}
