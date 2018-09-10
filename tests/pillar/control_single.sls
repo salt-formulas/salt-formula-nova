@@ -12,6 +12,7 @@ nova:
     ram_allocation_ratio: 1.5
     disk_allocation_ratio: 1.0
     workers: 8
+    nfs_mount_options: 'vers=3,lookupcache=pos'
     bind:
       private_address: 127.0.0.1
       public_address: 127.0.0.1
