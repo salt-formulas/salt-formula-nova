@@ -44,10 +44,6 @@ reserved_host_memory_mb = {{ compute.get('reserved_host_memory_mb', '512') }}
 max_concurrent_live_migrations = {{ compute.max_concurrent_live_migrations }}
 {%- endif %}
 
-{%- if compute.vcpu_pin_set is defined %}
-vcpu_pin_set={{ compute.vcpu_pin_set }}
-{%- endif %}
-
 allow_resize_to_same_host=True
 
 auth_strategy = keystone
