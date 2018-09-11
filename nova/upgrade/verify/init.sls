@@ -5,3 +5,4 @@ nova_upgrade_verify:
 
 include:
  - nova.upgrade.verify._api
+ - nova.upgrade.verify._service

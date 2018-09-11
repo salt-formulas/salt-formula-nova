@@ -23,6 +23,7 @@ import flavors
 import keypairs
 import quotas
 import servers
+import services
 
 aggregate_add_host = aggregates.add_host
 aggregate_create = aggregates.create
@@ -53,6 +54,9 @@ server_lock = servers.lock
 server_resume = servers.resume
 server_suspend = servers.suspend
 server_unlock = servers.unlock
+services_list = services.list_
+services_update = services.update
+services_wait = services.wait_for_services
 
 
 __all__ = (
@@ -64,7 +68,8 @@ __all__ = (
     'keypair_delete', 'keypair_get', 'keypair_list', 'quota_delete',
     'quota_list', 'quota_update', 'server_create', 'server_delete',
     'server_get', 'server_list', 'server_lock', 'server_resume',
-    'server_suspend', 'server_unlock')
+    'server_suspend', 'server_unlock', 'services_list', 'services_update',
+    'services_wait')
 
 
 def __virtual__():
