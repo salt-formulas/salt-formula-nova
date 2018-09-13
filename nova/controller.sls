@@ -11,7 +11,7 @@ include:
   # Move to appropriate upgrade phase
   - nova.db.online_sync
   - nova._ssl.mysql
-
+  - nova._ssl.rabbitmq
 {%- if grains.os_family == 'Debian' %}
 debconf-set-prerequisite:
     pkg.installed:
@@ -61,6 +61,7 @@ user_nova:
   - require_in:
     - pkg: nova_controller_packages
     - sls: nova._ssl.mysql
+    - sls: nova._ssl.rabbitmq
 {%- if controller.version not in ["juno", "kilo", "liberty", "mitaka", "newton"] %}
     - pkg: nova_placement_package
 {%- endif %}
@@ -171,6 +172,7 @@ contrail_nova_packages:
   - require:
     - pkg: nova_controller_packages
     - sls: nova._ssl.mysql
+    - sls: nova._ssl.rabbitmq
   - require_in:
     - sls: nova.db.offline_sync
     - sls: nova.db.online_sync
@@ -450,6 +452,7 @@ nova_controller_services:
   - require:
     - sls: nova.db.offline_sync
     - sls: nova._ssl.mysql
+    - sls: nova._ssl.rabbitmq
   - require_in:
     - sls: nova.db.online_sync
   - watch:

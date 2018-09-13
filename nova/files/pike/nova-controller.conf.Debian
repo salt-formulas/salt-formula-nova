@@ -8007,6 +8007,12 @@ kombu_ssl_version = TLSv1_2
 kombu_ssl_ca_certs = {{ controller.message_queue.ssl.get('cacert_file', controller.cacert_file) }}
 {%- endif %}
 
+{%- if controller.message_queue.get('x509',{}).get('enabled', False) %}
+kombu_ssl_keyfile = {{ controller.message_queue.x509.key_file}}
+
+kombu_ssl_certfile = {{ controller.message_queue.x509.cert_file}}
+{%- endif %}
+
 [oslo_messaging_zmq]
 
 #
