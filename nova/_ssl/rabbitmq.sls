@@ -1,20 +1,28 @@
 {% from "nova/map.jinja" import controller, compute with context %}
 
-nova_ssl_rabbitmq:
+{%- if controller.enabled == True %}
+  {%- set nova_msg = controller.message_queue %}
+  {%- set role = 'controller' %}
+{%- else %}
+  {%- set nova_msg = compute.message_queue %}
+  {%- set role = 'compute' %}
+{%- endif %}
+
+nova_{{ role }}_ssl_rabbitmq:
   test.show_notification:
     - text: "Running nova._ssl.rabbitmq"
 
-{%- if controller.message_queue.get('x509',{}).get('enabled',False) %}
+{%- if nova_msg.get('x509',{}).get('enabled',False) %}
 
-  {%- set ca_file=controller.message_queue.x509.ca_file %}
-  {%- set key_file=controller.message_queue.x509.key_file %}
-  {%- set cert_file=controller.message_queue.x509.cert_file %}
+  {%- set ca_file=nova_msg.x509.ca_file %}
+  {%- set key_file=nova_msg.x509.key_file %}
+  {%- set cert_file=nova_msg.x509.cert_file %}
 
-rabbitmq_nova_ssl_x509_ca:
-  {%- if controller.message_queue.x509.cacert is defined %}
+rabbitmq_nova_{{ role }}_ssl_x509_ca:
+  {%- if nova_msg.x509.cacert is defined %}
   file.managed:
     - name: {{ ca_file }}
-    - contents_pillar: nova:controller:message_queue:x509:cacert
+    - contents_pillar: nova:{{ role }}:message_queue:x509:cacert
     - mode: 444
     - user: nova
     - group: nova
@@ -24,11 +32,11 @@ rabbitmq_nova_ssl_x509_ca:
     - name: {{ ca_file }}
   {%- endif %}
 
-rabbitmq_nova_client_ssl_cert:
-  {%- if controller.message_queue.x509.cert is defined %}
+rabbitmq_nova_{{ role }}_ssl_cert:
+  {%- if nova_msg.x509.cert is defined %}
   file.managed:
     - name: {{ cert_file }}
-    - contents_pillar: nova:controller:message_queue:x509:cert
+    - contents_pillar: nova:{{ role }}:message_queue:x509:cert
     - mode: 440
     - user: nova
     - group: nova
@@ -38,11 +46,11 @@ rabbitmq_nova_client_ssl_cert:
     - name: {{ cert_file }}
   {%- endif %}
 
-rabbitmq_nova_client_ssl_private_key:
-  {%- if controller.message_queue.x509.key is defined %}
+rabbitmq_nova_{{ role }}_client_ssl_private_key:
+  {%- if nova_msg.x509.key is defined %}
   file.managed:
     - name: {{ key_file }}
-    - contents_pillar: nova:controller:message_queue:x509:key
+    - contents_pillar: nova:{{ role }}:message_queue:x509:key
     - mode: 400
     - user: nova
     - group: nova
@@ -52,7 +60,7 @@ rabbitmq_nova_client_ssl_private_key:
     - name: {{ key_file }}
   {%- endif %}
 
-rabbitmq_nova_ssl_x509_set_user_and_group:
+rabbitmq_nova_{{ role }}_ssl_x509_set_user_and_group:
   file.managed:
     - names:
       - {{ ca_file }}
@@ -61,17 +69,17 @@ rabbitmq_nova_ssl_x509_set_user_and_group:
     - user: nova
     - group: nova
 
-  {% elif controller.message_queue.get('ssl',{}).get('enabled',False) %}
-rabbitmq_ca_nova_client_controller:
-  {%- if controller.message_queue.ssl.cacert is defined %}
+  {% elif nova_msg.get('ssl',{}).get('enabled',False) %}
+rabbitmq_ca_nova_client_{{ role }}:
+  {%- if nova_msg.ssl.cacert is defined %}
   file.managed:
-    - name: {{ controller.message_queue.ssl.cacert_file }}
-    - contents_pillar: nova:controller:message_queue:ssl:cacert
+    - name: {{ nova_msg.ssl.cacert_file }}
+    - contents_pillar: nova:{{ role }}:message_queue:ssl:cacert
     - mode: 0444
     - makedirs: true
   {%- else %}
   file.exists:
-    - name: {{ controller.message_queue.ssl.get('cacert_file', controller.cacert_file) }}
+    - name: {{ nova_msg.ssl.get('cacert_file', controller.cacert_file) }}
   {%- endif %}
 
 {%- endif %}

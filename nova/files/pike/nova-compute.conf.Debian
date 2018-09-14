@@ -8039,13 +8039,23 @@ driver = messagingv2
 {%- if compute.message_queue.get('ssl',{}).get('enabled', False) %}
 rabbit_use_ssl=true
 
-{%- if compute.message_queue.ssl.version is defined %}
+  {%- if compute.message_queue.ssl.version is defined %}
 kombu_ssl_version = {{ compute.message_queue.ssl.version }}
-{%- elif salt['grains.get']('pythonversion') > [2,7,8] %}
+  {%- elif salt['grains.get']('pythonversion') > [2,7,8] %}
 kombu_ssl_version = TLSv1_2
-{%- endif %}
+  {%- endif %}
 
+  {%- if compute.message_queue.get('x509',{}).get('enabled', False) %}
+kombu_ssl_ca_certs = {{ compute.message_queue.x509.ca_file}}
+
+kombu_ssl_keyfile = {{ compute.message_queue.x509.key_file}}
+
+kombu_ssl_certfile = {{ compute.message_queue.x509.cert_file}}
+
+  {%- else %}
 kombu_ssl_ca_certs = {{ compute.message_queue.ssl.get('cacert_file', compute.cacert_file) }}
+  {%- endif %}
+
 {%- endif %}
 
 

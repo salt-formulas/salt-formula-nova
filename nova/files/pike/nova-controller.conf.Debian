@@ -7998,19 +7998,23 @@ rpc_conn_pool_size = 300
 {%- if controller.message_queue.get('ssl',{}).get('enabled', False) %}
 rabbit_use_ssl=true
 
-{%- if controller.message_queue.ssl.version is defined %}
+  {%- if controller.message_queue.ssl.version is defined %}
 kombu_ssl_version = {{ controller.message_queue.ssl.version }}
-{%- elif salt['grains.get']('pythonversion') > [2,7,8] %}
+  {%- elif salt['grains.get']('pythonversion') > [2,7,8] %}
 kombu_ssl_version = TLSv1_2
-{%- endif %}
+  {%- endif %}
 
-kombu_ssl_ca_certs = {{ controller.message_queue.ssl.get('cacert_file', controller.cacert_file) }}
-{%- endif %}
+  {%- if controller.message_queue.get('x509',{}).get('enabled', False) %}
+kombu_ssl_ca_certs = {{ controller.message_queue.x509.ca_file}}
 
-{%- if controller.message_queue.get('x509',{}).get('enabled', False) %}
 kombu_ssl_keyfile = {{ controller.message_queue.x509.key_file}}
 
 kombu_ssl_certfile = {{ controller.message_queue.x509.cert_file}}
+
+  {%- else %}
+kombu_ssl_ca_certs = {{ controller.message_queue.ssl.get('cacert_file', controller.cacert_file) }}
+  {%- endif %}
+
 {%- endif %}
 
 [oslo_messaging_zmq]
