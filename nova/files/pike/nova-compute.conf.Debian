@@ -8055,7 +8055,6 @@ kombu_ssl_certfile = {{ compute.message_queue.x509.cert_file}}
   {%- else %}
 kombu_ssl_ca_certs = {{ compute.message_queue.ssl.get('cacert_file', compute.cacert_file) }}
   {%- endif %}
-
 {%- endif %}
 
 

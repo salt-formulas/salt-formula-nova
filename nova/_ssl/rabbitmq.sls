@@ -2,9 +2,11 @@
 
 {%- if controller.enabled == True %}
   {%- set nova_msg = controller.message_queue %}
+  {%- set nova_cacert = controller.cacert_file %}
   {%- set role = 'controller' %}
 {%- else %}
   {%- set nova_msg = compute.message_queue %}
+  {%- set nova_cacert = compute.cacert_file %}
   {%- set role = 'compute' %}
 {%- endif %}
 
@@ -79,7 +81,7 @@ rabbitmq_ca_nova_client_{{ role }}:
     - makedirs: true
   {%- else %}
   file.exists:
-    - name: {{ nova_msg.ssl.get('cacert_file', controller.cacert_file) }}
+    - name: {{ nova_msg.ssl.get('cacert_file', nova_cacert) }}
   {%- endif %}
 
 {%- endif %}
