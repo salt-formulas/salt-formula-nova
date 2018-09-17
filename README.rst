@@ -601,6 +601,14 @@ scheduler, then you can include it like so:
       # Then add your custom filter on the end (make sure to include all other ones that you need as well)
       scheduler_default_filters: "DifferentHostFilter,SameHostFilter,RetryFilter,AvailabilityZoneFilter,RamFilter,CoreFilter,DiskFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,PciPassthroughFilter,MyCustomFilter"
 
+      # Since Queens version a sequence could be used as well:
+      ~scheduler_default_filters:
+         - DifferentHostFilter
+         - SameHostFilter
+           ...
+         - MyCustomFilter
+
+
 Hardware Trip/Unmap Support
 ---------------------------
 
