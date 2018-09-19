@@ -13,8 +13,9 @@
 import logging
 import six
 from six.moves import zip_longest
-
+import time
 import salt
+from salt.exceptions import CommandExecutionError
 
 LOG = logging.getLogger(__name__)
 
@@ -431,6 +432,56 @@ def online_data_migrations_present(name=None, api_db_version="20",
                 'Failed to execute online_data_migrations on nova api_db '
                 'version %s and nova db version %s, exception: %s' % (
                     api_db_version, db_version, e))
+    return ret
+
+
+@_error_handler
+def service_enabled(name, cloud_name, binary="nova-compute"):
+    """Ensures that the service is enabled on the host
+
+    :param name:    name of a host where service is running
+    :param service: name of the service have to be run
+    """
+    changes = {}
+
+    services = _call_nova_salt_module('services_list', name)(
+        name, service=binary, cloud_name=cloud_name)
+    enabled_service = [s for s in services if s['binary'] == binary
+                       and s['status'] == 'enabled' and s['host'] == name]
+    if len(enabled_service) > 0:
+        ret = _no_change(name, 'Compute services')
+    else:
+        changes = _call_nova_salt_module('services_update', name)(
+            name, binary, 'enable', cloud_name=cloud_name)
+        ret = _updated(name, 'Compute services', changes)
+
+    return ret
+
+@_error_handler
+def service_disabled(name, cloud_name, binary="nova-compute", disabled_reason=None):
+    """Ensures that the service is disabled on the host
+
+    :param name:    name of a host where service is running
+    :param service: name of the service have to be disabled
+    """
+
+    changes = {}
+    kwargs = {}
+
+    if disabled_reason is not None:
+        kwargs['disabled_reason'] = disabled_reason
+
+    services = _call_nova_salt_module('services_list', name)(
+        name, service=binary, cloud_name=cloud_name)
+    disabled_service = [s for s in services if s['binary'] == binary
+                       and s['status'] == 'disabled' and s['host'] == name]
+    if len(disabled_service) > 0:
+        ret = _no_change(name, 'Compute services')
+    else:
+        changes = _call_nova_salt_module('services_update', name)(
+            name, binary, 'disable', cloud_name=cloud_name, **kwargs)
+        ret = _updated(name, 'Compute services', changes)
+
     return ret
 
 
