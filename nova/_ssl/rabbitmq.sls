@@ -1,6 +1,6 @@
 {% from "nova/map.jinja" import controller, compute with context %}
 
-{%- if controller.enabled == True %}
+{%- if controller.get('enabled') %}
   {%- set nova_msg = controller.message_queue %}
   {%- set nova_cacert = controller.cacert_file %}
   {%- set role = 'controller' %}
@@ -34,7 +34,7 @@ rabbitmq_nova_{{ role }}_ssl_x509_ca:
     - name: {{ ca_file }}
   {%- endif %}
 
-rabbitmq_nova_{{ role }}_ssl_cert:
+rabbitmq_nova_{{ role }}_client_ssl_cert:
   {%- if nova_msg.x509.cert is defined %}
   file.managed:
     - name: {{ cert_file }}
