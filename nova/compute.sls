@@ -1,6 +1,8 @@
 {%- from "nova/map.jinja" import compute with context %}
 
 {%- if compute.get('enabled') %}
+include:
+  - nova._ssl.rabbitmq
 
 nova_compute_packages:
   pkg.installed:
@@ -88,6 +90,7 @@ user_libvirt-qemu:
   - template: jinja
   - require:
     - pkg: nova_compute_packages
+    - sls: nova._ssl.rabbitmq
 {%- endif %}
 
 {% for service_name in compute.services %}
@@ -136,20 +139,6 @@ nova_compute_fluentd_logger_package:
 
 {% endfor %}
 {% endif %}
-
-{%- if compute.message_queue.get('ssl',{}).get('enabled',False)  %}
-rabbitmq_ca_nova_compute:
-{%- if compute.message_queue.ssl.cacert is defined %}
-  file.managed:
-    - name: {{ compute.message_queue.ssl.cacert_file }}
-    - contents_pillar: nova:compute:message_queue:ssl:cacert
-    - mode: 0444
-    - makedirs: true
-{%- else %}
-  file.exists:
-   - name: {{ compute.message_queue.ssl.get('cacert_file', compute.cacert_file) }}
-{%- endif %}
-{%- endif %}
 
 {%- if compute.libvirt.get('tls',{}).get('enabled',False)  %}
 {%- set ca_file=compute.libvirt.tls.get('ca_file') %}
@@ -267,11 +256,10 @@ nova_compute_services:
   service.running:
   - enable: true
   - names: {{ compute.services }}
+  - require:
+    - sls: nova._ssl.rabbitmq
   - watch:
     - file: /etc/nova/nova.conf
-  {%- if compute.message_queue.get('ssl',{}).get('enabled',False) %}
-    - file: rabbitmq_ca_nova_compute
-  {%- endif %}
 
 {%- set ident = compute.identity %}
 
@@ -341,6 +329,7 @@ user_nova_compute:
     - nova
   - require_in:
     - pkg: nova_compute_packages
+    - sls: nova._ssl.rabbitmq
     {%- if compute.user is defined %}
     - file: /var/lib/nova/.ssh/id_rsa
     {%- endif %}
