@@ -10726,6 +10726,7 @@ block_device_creation_timeout = {{ controller.block_device_creation_timeout }}
     {%- set messaging_engine = _data.engine %}
 {%- endif %}
 [oslo_messaging_{{ messaging_engine }}]
+{%- if _data.ssl is defined and 'cacert_file' not in _data.get('ssl', {}).keys() %}{% do _data['ssl'].update({'cacert_file': controller.cacert_file}) %}{% endif %}
 {%- include "oslo_templates/files/queens/oslo/messaging/_" + messaging_engine + ".conf" %}
 {%- endif %}
 
