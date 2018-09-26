@@ -141,19 +141,23 @@ nova_compute_fluentd_logger_package:
 {% endif %}
 
 {%- if compute.libvirt.get('tls',{}).get('enabled',False)  %}
-{%- set ca_file=compute.libvirt.tls.get('ca_file') %}
-{%- set key_file=compute.libvirt.tls.get('key_file') %}
-{%- set cert_file=compute.libvirt.tls.get('cert_file') %}
-{%- set client_key_file=compute.libvirt.tls.client.get('key_file') %}
-{%- set client_cert_file=compute.libvirt.tls.client.get('cert_file') %}
+{%- set ca_file=compute.libvirt.tls.ca_file %}
+{%- set key_file=compute.libvirt.tls.key_file %}
+{%- set cert_file=compute.libvirt.tls.cert_file %}
+{%- set client_key_file=compute.libvirt.tls.client.key_file %}
+{%- set client_cert_file=compute.libvirt.tls.client.cert_file %}
 
 libvirt_ca_nova_compute:
 {%- if compute.libvirt.tls.cacert is defined %}
   file.managed:
     - name: {{ ca_file }}
     - contents_pillar: nova:compute:libvirt:tls:cacert
-    - mode: 444
+    - mode: 644
+    - user: root
+    - group: nova
     - makedirs: true
+    - require:
+      - user: user_nova_bash
 {%- else %}
   file.exists:
    - name: {{ ca_file }}
@@ -164,8 +168,12 @@ libvirt_public_cert:
   file.managed:
     - name: {{ cert_file }}
     - contents_pillar: nova:compute:libvirt:tls:cert
-    - mode: 440
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
+    - require:
+      - user: user_nova_bash
 {%- else %}
   file.exists:
    - name: {{ cert_file }}
@@ -176,8 +184,12 @@ libvirt_private_key:
   file.managed:
     - name: {{ key_file }}
     - contents_pillar: nova:compute:libvirt:tls:key
-    - mode: 400
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
+    - require:
+      - user: user_nova_bash
 {%- else %}
   file.exists:
    - name: {{ key_file }}
@@ -188,8 +200,12 @@ libvirt_client_public_cert:
   file.managed:
     - name: {{ client_cert_file }}
     - contents_pillar: nova:compute:libvirt:tls:client:cert
-    - mode: 440
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
+    - require:
+      - user: user_nova_bash
 {%- else %}
   file.exists:
    - name: {{ client_cert_file }}
@@ -200,27 +216,49 @@ libvirt_client_key:
   file.managed:
     - name: {{ client_key_file }}
     - contents_pillar: nova:compute:libvirt:tls:client:key
-    - mode: 400
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
+    - require:
+      - user: user_nova_bash
 {%- else %}
   file.exists:
    - name: {{ client_key_file }}
 {%- endif %}
+
+libvirt_tls_set_user_and_group:
+  file.managed:
+    - names:
+      - {{ ca_file }}
+      - {{ cert_file }}
+      - {{ key_file }}
+      - {{ client_key_file }}
+      - {{ client_cert_file }}
+    - user: root
+    - group: nova
+    - require:
+      - user: user_nova_bash
+
 {%- endif %}
 
 {%- if compute.qemu.vnc.tls.get('enabled', False) %}
 
-{%- set ca_file=compute.qemu.vnc.tls.get('ca_file') %}
-{%- set key_file=compute.qemu.vnc.tls.get('key_file') %}
-{%- set cert_file=compute.qemu.vnc.tls.get('cert_file') %}
+{%- set ca_file=compute.qemu.vnc.tls.ca_file %}
+{%- set key_file=compute.qemu.vnc.tls.key_file %}
+{%- set cert_file=compute.qemu.vnc.tls.cert_file %}
 
 qemu_ca_nova_compute:
 {%- if compute.qemu.vnc.tls.cacert is defined %}
   file.managed:
     - name: {{ ca_file }}
     - contents_pillar: nova:compute:qemu:vnc:tls:cacert
-    - mode: 444
+    - mode: 644
+    - user: root
+    - group: libvirt-qemu
     - makedirs: true
+    - require:
+      - user: user_libvirt-qemu
 {%- else %}
   file.exists:
    - name: {{ ca_file }}
@@ -231,8 +269,12 @@ qemu_public_cert:
   file.managed:
     - name: {{ cert_file }}
     - contents_pillar: nova:compute:qemu:vnc:tls:cert
-    - mode: 440
+    - mode: 640
+    - user: root
+    - group: libvirt-qemu
     - makedirs: true
+    - require:
+      - user: user_libvirt-qemu
 {%- else %}
   file.exists:
    - name: {{ cert_file }}
@@ -243,12 +285,27 @@ qemu_private_key:
   file.managed:
     - name: {{ key_file }}
     - contents_pillar: nova:compute:qemu:vnc:tls:key
-    - mode: 400
+    - mode: 640
+    - user: root
+    - group: libvirt-qemu
     - makedirs: true
+    - require:
+      - user: user_libvirt-qemu
 {%- else %}
   file.exists:
    - name: {{ key_file }}
 {%- endif %}
+
+qemu_tls_set_user_and_group:
+  file.managed:
+    - names:
+      - {{ ca_file }}
+      - {{ cert_file }}
+      - {{ key_file }}
+    - user: root
+    - group: libvirt-qemu
+    - require:
+      - user: user_libvirt-qemu
 
 {%- endif %}
 
