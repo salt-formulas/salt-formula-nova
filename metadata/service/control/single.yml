@@ -9,6 +9,7 @@ parameters:
     openstack_log_appender: false
     openstack_fluentd_handler_enabled: false
     openstack_ossyslog_handler_enabled: false
+    nova_rpc_response_timeout: 30
   nova:
     controller:
       enabled: true
@@ -55,6 +56,7 @@ parameters:
         engine: rabbitmq
         host: ${_param:single_address}
         port: 5672
+        rpc_response_timeout: ${_param:nova_rpc_response_timeout}
         user: openstack
         password: ${_param:rabbitmq_openstack_password}
         virtual_host: '/openstack'
