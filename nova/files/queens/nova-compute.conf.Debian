@@ -4459,6 +4459,7 @@ cross_az_attach={{ compute.cross_az_attach }}
 
 {%- set _data = compute.get('cinder', compute.get('identity', {})) %}
 {%- set auth_type = _data.get('auth_type', 'password') %}
+{%- if 'cacert_file' not in _data.keys() %}{% do _data.update({'cacert_file': compute.cacert_file}) %}{% endif %}
 {%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
 
 
