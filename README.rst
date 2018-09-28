@@ -356,7 +356,7 @@ Nova services on compute node with OpenContrail:
         ...
         networking: contrail
 
-Nova services on compute node with memcached caching:
+Nova services on compute node with memcached caching and security strategy:
 
 .. code-block:: yaml
 
@@ -371,6 +371,10 @@ Nova services on compute node with memcached caching:
             port: 11211
           - host: 127.0.0.1
             port: 11211
+          security:
+            enabled: true
+            strategy: ENCRYPT
+            secret_key: secret
 
 Client-side RabbitMQ HA setup:
 

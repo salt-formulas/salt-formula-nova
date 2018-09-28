@@ -5742,6 +5742,14 @@ cafile={{ compute.identity.get('cacert_file', compute.cacert_file) }}
 {%- endif %}
 {%- if compute.cache is defined %}
 memcached_servers={%- for member in compute.cache.members %}{{ member.host }}:11211{% if not loop.last %},{% endif %}{%- endfor %}
+  {%- if compute.cache.get('security', {}).get('enabled', False) %}
+memcache_security_strategy = {{ compute.cache.security.get('strategy', 'ENCRYPT') }}
+    {%- if compute.cache.security.secret_key is not defined or not compute.cache.security.secret_key %}
+    {%- do salt.test.exception('compute.cache.security.secret_key is not defined: Please add secret_key') %}
+    {%- else %}
+memcache_secret_key = {{ compute.cache.security.secret_key }}
+    {%- endif %}
+  {%- endif %}
 {%- endif %}
 # Complete "public" Identity API endpoint. This endpoint should not be an
 # "admin" endpoint, as it should be accessible by all end users. Unauthenticated

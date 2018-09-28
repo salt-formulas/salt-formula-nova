@@ -74,6 +74,10 @@ nova:
         port: 11211
       - host: 127.0.2.1
         port: 11211
+      security:
+        enabled: true
+        strategy: ENCRYPT
+        secret_key: secret
     libvirt:
       hw_disk_discard: unmap
       live_migration_tunnelled: False
