@@ -19,20 +19,24 @@
 # It is necessary to setup a CA and issue server certificates before
 # using this capability.
 #
-# This is enabled by default, uncomment this to disable it
-#listen_tls = 0
 
 {%- if compute.libvirt.tls.get('enabled', False) %}
-listen_tcp = 0
-listen_tls = 1
-key_file = {{compute.libvirt.tls.key_file|yaml_squote}}
-cert_file = {{compute.libvirt.tls.cert_file|yaml_squote}}
-ca_file = {{compute.libvirt.tls.ca_file|yaml_squote}}
-{% else %}
-listen_tls = 0
-listen_tcp = 1
-auth_tcp = "none"
-{% endif %}
+{%- set listen_tls = 1 %}
+{%- set listen_tcp = 0 %}
+{%- set key_file = compute.libvirt.tls.key_file %}
+{%- set cert_file = compute.libvirt.tls.cert_file %}
+{%- set ca_file = compute.libvirt.tls.ca_file %}
+{%- set unix_sock_ro_perms = "0000" %}
+{%- set unix_sock_rw_perms = "0000" %}
+{%- else %}
+{%- set listen_tls = 0 %}
+{%- set listen_tcp = 1 %}
+{%- set unix_sock_ro_perms = "0777" %}
+{%- set unix_sock_rw_perms = "0770" %}
+{%- endif %}
+
+# This is enabled by default, uncomment this to disable it
+listen_tls = {{ listen_tls }}
 
 # Listen for unencrypted TCP connections on the public TCP/IP port.
 # NB, must pass the --listen flag to the libvirtd process for this to
@@ -46,6 +50,7 @@ auth_tcp = "none"
 #listen_tcp = 1
 
 
+listen_tcp = {{ listen_tcp }}
 
 # Override the port for accepting secure TLS connections
 # This can be a port number, or service name
@@ -91,7 +96,7 @@ auth_tcp = "none"
 # without becoming root.
 #
 # This is restricted to 'root' by default.
-unix_sock_group = "{{ compute.get('libvirt_service_group', 'libvirtd') }}"
+unix_sock_group = {{ compute.get('libvirt_service_group', 'libvirtd')|yaml_dquote }}
 
 # Set the UNIX socket permissions for the R/O socket. This is used
 # for monitoring VM status only
@@ -99,6 +104,7 @@ unix_sock_group = "{{ compute.get('libvirt_service_group', 'libvirtd') }}"
 # Default allows any user. If setting group ownership may want to
 # restrict this to:
 #unix_sock_ro_perms = "0777"
+unix_sock_ro_perms = {{ unix_sock_ro_perms|yaml_dquote }}
 
 # Set the UNIX socket permissions for the R/W socket. This is used
 # for full management of VMs
@@ -108,7 +114,7 @@ unix_sock_group = "{{ compute.get('libvirt_service_group', 'libvirtd') }}"
 #
 # If not using PolicyKit and setting group ownership for access
 # control then you may want to relax this to:
-unix_sock_rw_perms = "0770"
+unix_sock_rw_perms = {{ unix_sock_rw_perms|yaml_dquote }}
 
 # Set the name of the directory in which sockets will be found/created.
 #unix_sock_dir = "/var/run/libvirt"
@@ -158,6 +164,7 @@ auth_unix_rw = "none"
 # mechanism in /etc/sasl2/libvirt.conf
 #auth_tcp = "sasl"
 #auth_tcp = "none"
+auth_tcp = {{ compute.libvirt.auth_tcp|yaml_dquote }}
 
 # Change the authentication scheme for TLS sockets.
 #
@@ -179,14 +186,23 @@ auth_unix_rw = "none"
 # Override the default server key file path
 #
 #key_file = "/etc/pki/libvirt/private/serverkey.pem"
+{%- if key_file is defined %}
+key_file = {{ key_file|yaml_squote }}
+{%- endif %}
 
 # Override the default server certificate file path
 #
 #cert_file = "/etc/pki/libvirt/servercert.pem"
+{%- if cert_file is defined %}
+cert_file = {{ cert_file|yaml_squote }}
+{%- endif %}
 
 # Override the default CA certificate path
 #
 #ca_file = "/etc/pki/CA/cacert.pem"
+{%- if ca_file is defined %}
+ca_file = {{ ca_file|yaml_squote }}
+{%- endif %}
 
 # Specify a certificate revocation list.
 #

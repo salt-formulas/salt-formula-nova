@@ -5998,14 +5998,6 @@ volume_clear_size={{ compute.lvm.volume_clear_size }}
 {%- endif %}
 {%- endif %}
 
-{%- if compute.libvirt.tls.get('enabled', False) %}
-live_migration_scheme="tls"
-{%- else %}
-{%- if compute.get('libvirt', {}).uri is defined %}
-connection_uri={{ compute.libvirt.uri }}
-{%- endif %}
-{%- endif %}
-
 # The ID of the image to boot from to rescue data from a corrupted instance.
 #
 # If the rescue REST API operation doesn't provide an ID of an image to
@@ -6107,6 +6099,9 @@ connection_uri={{ compute.libvirt.uri }}
 # * ``virt_type``: Influences what is used as default value here.
 #  (string value)
 #connection_uri =
+{%- if compute.get('libvirt', {}).uri is defined %}
+connection_uri={{ compute.libvirt.uri }}
+{%- endif %}
 
 #
 # Allow the injection of an admin password for instance only at ``create`` and
@@ -6273,6 +6268,9 @@ live_migration_inbound_addr = {{ compute.libvirt.migration_inbound_addr }}
 #  (string value)
 #live_migration_scheme=<None>
 
+{%- if compute.libvirt.tls.get('enabled', False) %}
+live_migration_scheme="tls"
+{%- endif %}
 #
 # Enable tunnelled migration.
 #

@@ -205,6 +205,7 @@ Debian:
   libvirt:
     inject_partition: '-2'
     inject_password: False
+    auth_tcp: "none"
     tls:
       enabled: False
       key_file: '/etc/pki/libvirt/private/serverkey.pem'
@@ -257,6 +258,7 @@ RedHat:
   libvirt:
     inject_partition: '-2'
     inject_password: False
+    auth_tcp: "none"
     tls:
       enabled: False
       key_file: '/etc/pki/libvirt/private/serverkey.pem'
