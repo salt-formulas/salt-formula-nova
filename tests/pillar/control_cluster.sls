@@ -11,6 +11,7 @@ nova:
     cpu_allocation_ratio: 16.0
     ram_allocation_ratio: 1.5
     disk_allocation_ratio: 1.0
+    consoleauth_token_ttl: 600
     workers: 8
     bind:
       private_address: 127.0.0.1
