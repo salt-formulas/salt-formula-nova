@@ -255,7 +255,7 @@ qemu_ca_nova_compute:
     - contents_pillar: nova:compute:qemu:vnc:tls:cacert
     - mode: 644
     - user: root
-    - group: libvirt-qemu
+    - group: nova
     - makedirs: true
     - require:
       - user: user_libvirt-qemu
@@ -271,7 +271,7 @@ qemu_public_cert:
     - contents_pillar: nova:compute:qemu:vnc:tls:cert
     - mode: 640
     - user: root
-    - group: libvirt-qemu
+    - group: nova
     - makedirs: true
     - require:
       - user: user_libvirt-qemu
@@ -287,7 +287,7 @@ qemu_private_key:
     - contents_pillar: nova:compute:qemu:vnc:tls:key
     - mode: 640
     - user: root
-    - group: libvirt-qemu
+    - group: nova
     - makedirs: true
     - require:
       - user: user_libvirt-qemu
@@ -303,7 +303,7 @@ qemu_tls_set_user_and_group:
       - {{ cert_file }}
       - {{ key_file }}
     - user: root
-    - group: libvirt-qemu
+    - group: nova
     - require:
       - user: user_libvirt-qemu
 
