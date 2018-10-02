@@ -28,6 +28,14 @@
 {%- set ca_file = compute.libvirt.tls.ca_file %}
 {%- set unix_sock_ro_perms = "0000" %}
 {%- set unix_sock_rw_perms = "0000" %}
+{%- if compute.libvirt.tls.allowed_dn_list is defined %}
+  {% set tls_allowed_dn_list = [] %}
+  {%- for _,item in compute.libvirt.tls.allowed_dn_list.iteritems() %}
+    {%- if item.enabled %}
+      {%- do tls_allowed_dn_list.append(item.value) %}
+    {%- endif %}
+  {%- endfor %}
+{%- endif %}
 {%- else %}
 {%- set listen_tls = 0 %}
 {%- set listen_tcp = 1 %}
@@ -250,6 +258,9 @@ ca_file = {{ ca_file|yaml_squote }}
 # By default, no DN's are checked
 #tls_allowed_dn_list = ["DN1", "DN2"]
 
+{%- if tls_allowed_dn_list is defined %}
+tls_allowed_dn_list = {{ tls_allowed_dn_list }}
+{%- endif %}
 
 # A whitelist of allowed SASL usernames. The format for usernames
 # depends on the SASL authentication mechanism. Kerberos usernames
