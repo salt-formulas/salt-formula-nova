@@ -1,11 +1,14 @@
 {%- from "nova/map.jinja" import client with context %}
 {%- if client.enabled %}
 
+include:
+- nova.client.resources.v21
+
 nova_client_packages:
   pkg.installed:
   - names: {{ client.pkgs }}
 
-{%- for identity_name, identity in client.server.iteritems() %}
+{%- for identity_name, identity in client.get('server', {}).iteritems() %}
 
 {%- if identity.flavor is defined %}
 
@@ -75,3 +78,4 @@ nova_aggregate_{{ aggregate_name }}:
 {%- endfor %}
 
 {%- endif %}
+
