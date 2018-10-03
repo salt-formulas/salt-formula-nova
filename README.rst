@@ -986,6 +986,32 @@ You able to set custom certificates in pillar:
             key: (certificate content)
             cert: (certificate content)
 
+Controlling access by `tls_allowed_dn_list`.
+Enable an access control list of client certificate Distinguished Names (DNs)
+which can connect to the TLS port on this server. The default is that DNs are
+not checked. This list may contain wildcards such as
+"C=GB,ST=London,L=London,O=Libvirt Project,CN=*" See the POSIX fnmatch function
+for the format of the wildcards.
+Note that if this is an empty list, no client can connect.
+Note also that GnuTLS returns DNs without spaces after commas between
+the fields (and this is what we check against), but the openssl x509 tool
+shows spaces.
+
+.. code-block:: yaml
+
+  nova:
+    compute:
+      libvirt:
+        tls:
+          tls_allowed_dn_list:
+            host1:
+              enabled: true
+              value: 'C=foo,CN=cmp1'
+            host2:
+              enabled: true
+              value: 'C=foo,CN=cmp2'
+
+
 You can read more about live migration over TLS here:
 https://wiki.libvirt.org/page/TLSCreateServerCerts
 
