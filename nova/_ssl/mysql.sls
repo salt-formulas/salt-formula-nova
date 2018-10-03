@@ -15,8 +15,8 @@ mysql_nova_ssl_x509_ca:
   file.managed:
     - name: {{ ca_file }}
     - contents_pillar: nova:controller:database:x509:cacert
-    - mode: 444
-    - user: nova
+    - mode: 644
+    - user: root
     - group: nova
     - makedirs: true
   {%- else %}
@@ -29,8 +29,8 @@ mysql_nova_client_ssl_cert:
   file.managed:
     - name: {{ cert_file }}
     - contents_pillar: nova:controller:database:x509:cert
-    - mode: 440
-    - user: nova
+    - mode: 640
+    - user: root
     - group: nova
     - makedirs: true
   {%- else %}
@@ -43,8 +43,8 @@ mysql_nova_client_ssl_private_key:
   file.managed:
     - name: {{ key_file }}
     - contents_pillar: nova:controller:database:x509:key
-    - mode: 400
-    - user: nova
+    - mode: 640
+    - user: root
     - group: nova
     - makedirs: true
   {%- else %}
@@ -58,7 +58,7 @@ mysql_nova_ssl_x509_set_user_and_group:
       - {{ ca_file }}
       - {{ cert_file }}
       - {{ key_file }}
-    - user: nova
+    - user: root
     - group: nova
 
   {% elif controller.database.get('ssl',{}).get('enabled',False) %}
@@ -67,11 +67,19 @@ mysql_ca_nova_controller:
   file.managed:
     - name: {{ controller.database.ssl.cacert_file }}
     - contents_pillar: nova:controller:database:ssl:cacert
-    - mode: 0444
+    - mode: 644
     - makedirs: true
+    - user: root
+    - group: nova
   {%- else %}
   file.exists:
     - name: {{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}
   {%- endif %}
+
+mysql_nova_ssl_set_user_and_group:
+  file.managed:
+    - name: {{ controller.database.ssl.get('cacert_file', controller.cacert_file) }}
+    - user: root
+    - group: nova
 
 {%- endif %}

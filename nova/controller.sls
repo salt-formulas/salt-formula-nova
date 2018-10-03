@@ -75,8 +75,10 @@ novncproxy_vencrypt_ca:
   file.managed:
     - name: {{ ca_file }}
     - contents_pillar: nova:controller:novncproxy:vencrypt:tls:cacert
-    - mode: 444
+    - mode: 644
     - makedirs: true
+    - user: root
+    - group: nova
     - watch_in:
       - service: nova_controller_services
 {%- else %}
@@ -89,7 +91,9 @@ novncproxy_vencrypt_public_cert:
   file.managed:
     - name: {{ cert_file }}
     - contents_pillar: nova:controller:novncproxy:vencrypt:tls:cert
-    - mode: 440
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
 {%- else %}
   file.exists:
@@ -101,12 +105,24 @@ novncproxy_vencrypt_private_key:
   file.managed:
     - name: {{ key_file }}
     - contents_pillar: nova:controller:novncproxy:vencrypt:tls:key
-    - mode: 400
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
 {%- else %}
   file.exists:
    - name: {{ key_file }}
 {%- endif %}
+
+novncproxy_vencrypt_set_user_and_group:
+  file.managed:
+    - names:
+      - {{ ca_file }}
+      - {{ cert_file }}
+      - {{ key_file }}
+    - user: root
+    - group: nova
+
 {%- endif %}
 {%- endif %}
 
@@ -119,8 +135,10 @@ novncproxy_server_public_cert:
   file.managed:
     - name: {{ cert_file }}
     - contents_pillar: nova:controller:novncproxy:tls:server:cert
-    - mode: 440
+    - mode: 644
     - makedirs: true
+    - user: root
+    - group: nova
     - watch_in:
       - service: nova_controller_services
 {%- else %}
@@ -133,12 +151,23 @@ novncproxy_server_private_key:
   file.managed:
     - name: {{ key_file }}
     - contents_pillar: nova:controller:novncproxy:tls:server:key
-    - mode: 400
+    - mode: 640
+    - user: root
+    - group: nova
     - makedirs: true
 {%- else %}
   file.exists:
    - name: {{ key_file }}
 {%- endif %}
+
+novncproxy_server_set_user_and_group:
+  file.managed:
+    - names:
+      - {{ cert_file }}
+      - {{ key_file }}
+    - user: root
+    - group: nova
+
 {%- endif %}
 
 {%- if controller.get('networking', 'default') == "contrail" and controller.version == "juno" %}

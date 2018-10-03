@@ -25,8 +25,8 @@ rabbitmq_nova_{{ role }}_ssl_x509_ca:
   file.managed:
     - name: {{ ca_file }}
     - contents_pillar: nova:{{ role }}:message_queue:x509:cacert
-    - mode: 444
-    - user: nova
+    - mode: 644
+    - user: root
     - group: nova
     - makedirs: true
   {%- else %}
@@ -39,8 +39,8 @@ rabbitmq_nova_{{ role }}_client_ssl_cert:
   file.managed:
     - name: {{ cert_file }}
     - contents_pillar: nova:{{ role }}:message_queue:x509:cert
-    - mode: 440
-    - user: nova
+    - mode: 640
+    - user: root
     - group: nova
     - makedirs: true
   {%- else %}
@@ -53,8 +53,8 @@ rabbitmq_nova_{{ role }}_client_ssl_private_key:
   file.managed:
     - name: {{ key_file }}
     - contents_pillar: nova:{{ role }}:message_queue:x509:key
-    - mode: 400
-    - user: nova
+    - mode: 640
+    - user: root
     - group: nova
     - makedirs: true
   {%- else %}
@@ -68,7 +68,7 @@ rabbitmq_nova_{{ role }}_ssl_x509_set_user_and_group:
       - {{ ca_file }}
       - {{ cert_file }}
       - {{ key_file }}
-    - user: nova
+    - user: root
     - group: nova
 
   {% elif nova_msg.get('ssl',{}).get('enabled',False) %}
@@ -77,11 +77,16 @@ rabbitmq_ca_nova_client_{{ role }}:
   file.managed:
     - name: {{ nova_msg.ssl.cacert_file }}
     - contents_pillar: nova:{{ role }}:message_queue:ssl:cacert
-    - mode: 0444
+    - mode: 644
     - makedirs: true
   {%- else %}
   file.exists:
     - name: {{ nova_msg.ssl.get('cacert_file', nova_cacert) }}
   {%- endif %}
 
+rabbitmq_nova_{{ role }}_ssl_set_user_and_group:
+  file.managed:
+    - name: {{ nova_msg.ssl.get('cacert_file', nova_cacert) }}
+    - user: root
+    - group: nova
 {%- endif %}
