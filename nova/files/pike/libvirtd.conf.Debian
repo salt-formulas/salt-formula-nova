@@ -26,8 +26,8 @@
 {%- set key_file = compute.libvirt.tls.key_file %}
 {%- set cert_file = compute.libvirt.tls.cert_file %}
 {%- set ca_file = compute.libvirt.tls.ca_file %}
-{%- set unix_sock_ro_perms = "0000" %}
-{%- set unix_sock_rw_perms = "0000" %}
+{%- set unix_sock_ro_perms = "0777" %}
+{%- set unix_sock_rw_perms = "0770" %}
 {%- if compute.libvirt.tls.allowed_dn_list is defined %}
   {% set tls_allowed_dn_list = [] %}
   {%- for _,item in compute.libvirt.tls.allowed_dn_list.iteritems() %}
