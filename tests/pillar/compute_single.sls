@@ -60,6 +60,10 @@ nova:
       members:
       - host: 127.0.0.1
         port: 11211
+      security:
+        enabled: true
+        strategy: ENCRYPT
+        secret_key: secret
     qemu:
       user: nova
       group: cinder

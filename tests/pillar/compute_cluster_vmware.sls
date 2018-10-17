@@ -63,6 +63,10 @@ nova:
         port: 11211
       - host: 127.0.2.1
         port: 11211
+      security:
+        enabled: true
+        strategy: ENCRYPT
+        secret_key: secret
     compute_driver: vmwareapi.VMwareVCDriver
     vmware:
       host_username: vmware

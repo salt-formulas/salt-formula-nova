@@ -5749,6 +5749,14 @@ cafile={{ controller.identity.get('cacert_file', controller.cacert_file) }}
 {%- endif %}
 {%- if controller.cache is defined %}
 memcached_servers={%- for member in controller.cache.members %}{{ member.host }}:11211{% if not loop.last %},{% endif %}{%- endfor %}
+  {%- if controller.cache.get('security', {}).get('enabled', False) %}
+memcache_security_strategy = {{ controller.cache.security.get('strategy', 'ENCRYPT') }}
+    {%- if controller.cache.security.secret_key is not defined or not controller.cache.security.secret_key %}
+    {%- do salt.test.exception('controller.cache.security.secret_key is not defined: Please add secret_key') %}
+    {%- else %}
+memcache_secret_key = {{ controller.cache.security.secret_key }}
+    {%- endif %}
+  {%- endif %}
 {%- endif %}
 # Complete "public" Identity API endpoint. This endpoint should not be an
 # "admin" endpoint, as it should be accessible by all end users. Unauthenticated
