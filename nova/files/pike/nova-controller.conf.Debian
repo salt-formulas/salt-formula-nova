@@ -8260,6 +8260,11 @@ enable_proxy_headers_parsing=True
 #  (multi valued)
 # Deprecated group/name - [DEFAULT]/pci_alias
 #alias =
+{%- if controller.get('pci', {}).get('alias', false) %}
+  {%- for alias_name, alias in controller.pci.alias.iteritems() %}
+alias = {{ alias | json }}
+  {%- endfor %}
+{%- endif %}
 
 #
 # White list of PCI devices available to VMs.

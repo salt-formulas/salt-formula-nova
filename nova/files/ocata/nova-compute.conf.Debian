@@ -8247,6 +8247,11 @@ kombu_ssl_ca_certs = {{ compute.message_queue.ssl.get('cacert_file', compute.cac
 #  (multi valued)
 # Deprecated group/name - [DEFAULT]/pci_alias
 #alias =
+{%- if compute.get('pci', {}).get('alias', false) %}
+  {%- for alias_name, alias in compute.pci.alias.iteritems() %}
+alias = {{ alias | json }}
+  {%- endfor %}
+{%- endif %}
 
 #
 # White list of PCI devices available to VMs.
@@ -8313,9 +8318,9 @@ kombu_ssl_ca_certs = {{ compute.message_queue.ssl.get('cacert_file', compute.cac
 # Deprecated group/name - [DEFAULT]/pci_passthrough_whitelist
 #passthrough_whitelist =
 {%- if compute.get('sriov', false) %}
-{%- for nic_name, sriov in compute.sriov.iteritems() %}
-passthrough_whitelist = {"devname":"{{ sriov.devname }}","physical_network":"{{ sriov.physical_network }}"}
-{%- endfor %}
+  {%- for nic_name, sriov in compute.sriov.iteritems() %}
+passthrough_whitelist = {{ sriov | json }}
+  {%- endfor %}
 {%- endif %}
 
 [placement]

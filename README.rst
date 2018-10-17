@@ -56,6 +56,13 @@ Nova services on the controller node:
           user: openstack
           password: pwd
           virtual_host: '/openstack'
+        pci:
+          alias:
+            alias1:
+              device_type: "type-PF"
+              name: "a1"
+              product_id: "154d"
+              vendor_id: "8086"
         network:
           engine: neutron
           host: 127.0.0.1
@@ -155,6 +162,20 @@ Enable Barbican integration:
         ....
         barbican:
           enabled: true
+
+Define aliases for PCI devices:
+.. code-block:: yaml
+
+    nova:
+      controller:
+        ...
+        pci:
+          alias:
+            alias1:
+              device_type: "type-PF"
+              name: "a1"
+              product_id: "154d"
+              vendor_id: "8086"
 
 Enable cells update:
 
@@ -290,6 +311,13 @@ Nova controller services on compute node:
           engine: glance
           host: 127.0.0.1
           port: 9292
+        pci:
+          alias:
+            alias1:
+              device_type: "type-PF"
+              name: "a1"
+              product_id: "154d"
+              vendor_id: "8086"
         network:
           engine: neutron
           host: 127.0.0.1
@@ -442,6 +470,20 @@ Enable Barbican integration:
         barbican:
           enabled: true
 
+Define aliases for PCI devices:
+.. code-block:: yaml
+
+    nova:
+      compute:
+        ...
+        pci:
+          alias:
+            alias1:
+              device_type: "type-PF"
+              name: "a1"
+              product_id: "154d"
+              vendor_id: "8086"
+
 Nova metadata custom bindings:
 
 .. code-block:: yaml
@@ -560,6 +602,9 @@ specific compute nodes:
         nic_one:
           devname: eth1
           physical_network: physnet1
+
+.. note:: Parameters located under nova:compute:sriov:<nic_name> are copied to passthrough_whitelist parameter into
+          nova.conf file in appropriate format.
 
 CPU pinning & Hugepages
 -----------------------
