@@ -112,7 +112,7 @@
 }, merge=pillar.nova.get('controller', {}), base='BaseDefaults') %}
 
 {% set upgrade = pillar.get('nova', {}).get('upgrade', {}) %}
-{% set pin_level = 'auto' %}
+{% set pin_level = pillar.get('nova', {}).get('upgrade', {}).get('old_release','') %}
 
 {% set upgrade_levels = salt['grains.filter_by']({
     'Debian': {
@@ -285,7 +285,7 @@ RedHat:
 {% set compute = salt["grains.filter_by"](compute_defaults, merge=pillar.nova.get("compute", {}), base='BaseDefaults') %}
 
 {%- if pillar.nova.get('upgrade',{}).get('upgrade_enabled',False) %}
-  {% do compute.update(upgrade_levels) %}
+  {% do compute.update({'upgrade_levels': {'compute': 'auto'}}) %}
   {% do controller.update(upgrade_levels) %}
 {%- endif %}
 
