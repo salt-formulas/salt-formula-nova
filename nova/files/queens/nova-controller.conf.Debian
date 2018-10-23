@@ -4868,7 +4868,8 @@ scheduler_available_filters = {{ filter }}
 #  (list value)
 # Deprecated group/name - [DEFAULT]/scheduler_default_filters
 #enabled_filters = RetryFilter,AvailabilityZoneFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter
-enabled_filters={{ controller.scheduler_default_filters }}
+{%- set _enabled_filters = controller.scheduler_default_filters if controller.scheduler_default_filters is string else controller.scheduler_default_filters|unique|sort|join(',') %}
+enabled_filters = {{ _enabled_filters }}
 
 # DEPRECATED:
 # Filters used for filtering baremetal hosts.
