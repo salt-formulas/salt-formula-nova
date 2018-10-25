@@ -68,3 +68,5 @@ nova:
       user: nova
       group: cinder
       dynamic_ownership: 1
+    consoleauth:
+      token_ttl: 600

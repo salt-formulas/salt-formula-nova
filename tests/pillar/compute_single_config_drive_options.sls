@@ -66,3 +66,5 @@ nova:
       cdrom: True
       format: iso9660
       inject_password: True
+    consoleauth:
+      token_ttl: 600

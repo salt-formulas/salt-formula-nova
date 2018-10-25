@@ -4649,6 +4649,12 @@ live_migration_wait_for_vif_plug = true
 # Minimum value: 0
 # Deprecated group/name - [DEFAULT]/console_token_ttl
 #token_ttl = 600
+{% if compute.consoleauth_token_ttl is defined %}
+{%- set token_ttl = compute.consoleauth_token_ttl %}
+token_ttl = {{ token_ttl }}
+{%- elif compute.get('consoleauth', {}).token_ttl is defined %}
+token_ttl = {{ compute.consoleauth.token_ttl }}
+{% endif %}
 
 
 [crypto]

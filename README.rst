@@ -30,7 +30,8 @@ Nova services on the controller node:
         workers: 8
         report_interval: 60
         dhcp_domain: novalocal
-        consoleauth_token_ttl: 600
+        consoleauth:
+          token_ttl: 600
         bind:
           public_address: 10.0.0.122
           public_name: openstack.domain.com

@@ -4534,7 +4534,10 @@ workers = {{ controller.workers }}
 # Deprecated group/name - [DEFAULT]/console_token_ttl
 #token_ttl = 600
 {% if controller.consoleauth_token_ttl is defined %}
-token_ttl = {{ controller.consoleauth_token_ttl }}
+{%- set token_ttl = controller.consoleauth_token_ttl %}
+token_ttl = {{ token_ttl }}
+{%- elif controller.get('consoleauth', {}).token_ttl is defined %}
+token_ttl = {{ controller.consoleauth.token_ttl }}
 {% endif %}
 
 [cors]

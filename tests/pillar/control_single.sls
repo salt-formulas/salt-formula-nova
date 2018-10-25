@@ -81,6 +81,8 @@ nova:
         enabled: true
         strategy: ENCRYPT
         secret_key: secret
+    consoleauth:
+      token_ttl: 600
     policy:
       'context_is_admin': 'role:admin or role:administrator'
       'compute:create': 'rule:admin_or_owner'
