@@ -17,7 +17,7 @@
     'vnc_protocol': 'http',
 } %}
 
-{%- if grains.os_family == "Debian" %}
+{%- if salt['grains.get']('os_family') == 'Debian' %}
 {%- set pkgs_list = [ 'nova-common', 'nova-consoleproxy', 'novnc', 'nova-api', 'nova-conductor', 'nova-consoleauth', 'nova-doc', 'nova-scheduler', 'python-novaclient', 'python-memcache', 'gettext-base', 'python-pycadf'] %}
 {%- set services_list = ['nova-conductor', 'nova-api', 'nova-consoleauth', 'nova-scheduler', 'nova-novncproxy'] %}
 {%- if pillar.nova.controller is defined and pillar.nova.controller.get('version',{}) in ["juno", "kilo", "liberty", "mitaka"] %}
@@ -26,7 +26,7 @@
 {%- endif %}
 {%- endif %}
 
-{%- if grains.os_family == "RedHat" %}
+{%- if salt['grains.get']('os_family') == "RedHat" %}
 {%- set pkgs_list = ['openstack-nova-novncproxy', 'python-nova', 'openstack-nova-api', 'openstack-nova-console', 'openstack-nova-scheduler', 'python-novaclient', 'openstack-nova-common', 'openstack-nova-conductor', 'python-pycadf'] %}
 {%- set services_list = ['openstack-nova-conductor', 'openstack-nova-api', 'openstack-nova-consoleauth', 'openstack-nova-scheduler', 'openstack-nova-novncproxy'] %}
 {%- if pillar.nova.controller is defined and pillar.nova.controller.get('version',{}) in ["juno", "kilo", "liberty", "mitaka", "newton", "ocata"] %}
