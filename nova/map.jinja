@@ -18,7 +18,11 @@
 } %}
 
 {%- if salt['grains.get']('os_family') == 'Debian' %}
+{%- if salt['grains.get']('osmajorrelease') >= 18 %}
+{%- set pkgs_list = [ 'nova-common', 'nova-novncproxy', 'nova-ajax-console-proxy', 'nova-spiceproxy', 'nova-xvpvncproxy', 'novnc', 'nova-api', 'nova-conductor', 'nova-consoleauth', 'nova-doc', 'nova-scheduler', 'python-novaclient', 'python-memcache', 'gettext-base', 'python-pycadf'] %}
+{%- else %}
 {%- set pkgs_list = [ 'nova-common', 'nova-consoleproxy', 'novnc', 'nova-api', 'nova-conductor', 'nova-consoleauth', 'nova-doc', 'nova-scheduler', 'python-novaclient', 'python-memcache', 'gettext-base', 'python-pycadf'] %}
+{%- endif %}
 {%- set services_list = ['nova-conductor', 'nova-api', 'nova-consoleauth', 'nova-scheduler', 'nova-novncproxy'] %}
 {%- if pillar.nova.controller is defined and pillar.nova.controller.get('version',{}) in ["juno", "kilo", "liberty", "mitaka"] %}
 {%- do pkgs_list.append('nova-cert') %}
