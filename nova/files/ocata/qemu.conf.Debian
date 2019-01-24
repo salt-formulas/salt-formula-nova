@@ -248,7 +248,7 @@ group = "{{ compute.qemu.group }}"
 {%- endif %}
 
 {%- if compute.qemu.dynamic_ownership is defined %}
-dynamic_ownership = "{{ compute.qemu.dynamic_ownership }}"
+dynamic_ownership = {{ compute.qemu.dynamic_ownership }}
 {%- endif %}
 {%- endif %}
 
