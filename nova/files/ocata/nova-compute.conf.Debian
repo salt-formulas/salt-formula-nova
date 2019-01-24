@@ -5722,7 +5722,11 @@ memcached_servers={%- for member in compute.cache.members %}{{ member.host }}:11
 #auth_uri=<None>
 
 # API version of the admin Identity API endpoint. (string value)
+{%- if pillar.keystone.server.api_version is defined %}
+auth_version={{ pillar.keystone.server.api_version }}
+{%- else %}
 #auth_version=<None>
+{%- endif %}
 
 # Do not handle authorization requests within the middleware, but delegate the
 # authorization decision to downstream WSGI components. (boolean value)
